@@ -769,6 +769,7 @@ async function sendToDiscord(preview: MatchPreview): Promise<void> {
             content: structuredMessage,
             username: "Match Preview Bot",
             avatar_url: "https://i.imgur.com/4M34hi2.png", // Add a relevant avatar URL
+            suppress_embeds: true, // Prevent Discord from generating link previews
         });
 
         log.success(
@@ -1033,9 +1034,11 @@ async function main() {
                 .filter(Boolean);
             message += `\n**${compName.trim()}**${compId ? compId : ""}\n`;
 
-            // Add each match with hyperlink
+            // Add each match with hyperlink and prevent preview
             for (const match of section.matches) {
-                message += `⚽ ${match.time} EST [${match.match}](${match.url})\n`;
+                // Use Discord's no-embed URL format
+                const noPreviewUrl = `<${match.url}>`;
+                message += `⚽ ${match.time} EST ${match.match} ${noPreviewUrl}\n`;
             }
         }
 
@@ -1052,6 +1055,7 @@ async function main() {
                 content: message,
                 username: "Match Preview Bot",
                 avatar_url: "https://i.imgur.com/4M34hi2.png",
+                flags: 4, // MessageFlags.SUPPRESS_EMBEDS
             });
 
             log.success("Successfully sent match previews to Discord");
