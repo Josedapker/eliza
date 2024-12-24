@@ -203,16 +203,40 @@ async function getPreviewLinks(page: Page): Promise<PreviewSection[]> {
         const sections = await page.evaluate(() => {
             // Helper function to clean text (remove HTML and extra whitespace)
             const cleanText = (text: string): string => {
-                return text
-                    .replace(/<[^>]*>/g, "")
-                    .replace(/\s+/g, " ")
-                    .trim();
+                // First remove any HTML tags
+                const withoutHtml = text.replace(/<[^>]*>/g, "");
+                // Then clean up whitespace
+                return withoutHtml.replace(/\s+/g, " ").trim();
             };
 
             // Helper function to extract competition ID
             const extractCompetitionId = (href: string): string => {
                 const matches = href.match(/\/(\d+)\//);
                 return matches ? matches[1] : "";
+            };
+
+            // Helper function to extract competition name from URL
+            const getCompetitionFromUrl = (href: string): string => {
+                const urlParts = href.split("/");
+                const competitionPart = urlParts.find((part) => {
+                    const lower = part.toLowerCase();
+                    return (
+                        lower.includes("serie-") ||
+                        lower.includes("league-") ||
+                        lower.includes("primeira-liga") ||
+                        lower.includes("cup") ||
+                        lower.includes("championship")
+                    );
+                });
+
+                if (!competitionPart) return "";
+
+                // Format competition name
+                return competitionPart
+                    .split("-")
+                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ")
+                    .replace(/-/g, " ");
             };
 
             // Find all competition sections
@@ -243,42 +267,26 @@ async function getPreviewLinks(page: Page): Promise<PreviewSection[]> {
                         return;
                     }
 
-                    // Extract competition name from URL path
-                    const urlParts = href.split("/");
-                    const competitionPart = urlParts.find(
-                        (part) =>
-                            part.includes("serie-") ||
-                            part.includes("league-") ||
-                            part.includes("primeira-liga") ||
-                            part.includes("cup")
-                    );
-
-                    let competitionName = competitionPart
-                        ? competitionPart
-                              .split("-")
-                              .map(
-                                  (word) =>
-                                      word.charAt(0).toUpperCase() +
-                                      word.slice(1)
-                              )
-                              .join(" ")
-                        : "Unknown";
-
-                    // Clean up competition name
-                    competitionName = competitionName
-                        .replace(/-/g, " ")
-                        .replace(/Football|Rugby Union|Cricket/g, "")
-                        .trim();
-
-                    // Get competition ID from URL
+                    // Get competition name and ID
+                    const competitionName = getCompetitionFromUrl(href);
                     const competitionId = extractCompetitionId(href);
-                    const fullCompetitionName = `${competitionName}${competitionId}`;
+                    const fullCompetitionName = competitionName
+                        ? `${competitionName}${competitionId}`
+                        : "";
 
-                    // Find match time
-                    let timeElement = link.previousElementSibling;
-                    let time = cleanText(
-                        timeElement?.textContent || "Time TBA"
-                    );
+                    // Find match time from previous sibling
+                    const timeElement = link.previousElementSibling;
+                    let time = cleanText(timeElement?.textContent || "");
+
+                    // Skip invalid entries
+                    if (
+                        time.toLowerCase().includes("preview") ||
+                        time.toLowerCase().includes("stories") ||
+                        time.toLowerCase().includes("trending") ||
+                        time.toLowerCase().includes("latest")
+                    ) {
+                        return;
+                    }
 
                     // Clean up match text
                     const cleanMatchText = matchText
@@ -290,18 +298,13 @@ async function getPreviewLinks(page: Page): Promise<PreviewSection[]> {
                         .trim()
                         .replace(/ vs /g, " vs. ");
 
-                    // Skip if we don't have valid match text or if it's a header
+                    // Skip if we don't have valid data
                     if (!cleanMatchText || cleanMatchText === "-") return;
-                    if (
-                        time.toLowerCase().includes("preview") ||
-                        time.toLowerCase().includes("stories") ||
-                        time.toLowerCase().includes("trending")
-                    )
-                        return;
 
                     // Create competition entry if it doesn't exist
-                    if (!competitions.has(fullCompetitionName)) {
-                        competitions.set(fullCompetitionName, {
+                    const sectionKey = fullCompetitionName || "Unknown";
+                    if (!competitions.has(sectionKey)) {
+                        competitions.set(sectionKey, {
                             id: competitionId,
                             matches: [],
                         });
@@ -309,7 +312,7 @@ async function getPreviewLinks(page: Page): Promise<PreviewSection[]> {
 
                     // Add match to competition
                     if (time && cleanMatchText) {
-                        competitions.get(fullCompetitionName)?.matches.push({
+                        competitions.get(sectionKey)?.matches.push({
                             time,
                             match: cleanMatchText,
                             url: href.startsWith("http")
@@ -1081,22 +1084,67 @@ async function main() {
         for (const section of sections) {
             if (!section.section || section.matches.length === 0) continue;
 
-            // Add competition name and ID
-            message += `\n${section.section} \n`;
+            // Skip sections that are not actual competitions
+            if (
+                section.section.toLowerCase().includes("heading") ||
+                section.section.toLowerCase().includes("latest") ||
+                section.section.toLowerCase().includes("trending")
+            ) {
+                continue;
+            }
 
-            // Add each match
+            // Add competition name and ID
+            message += `\n${section.section}\n`;
+
+            // Group matches by time
+            const matchesByTime = new Map<
+                string,
+                { match: string; url: string }[]
+            >();
             for (const match of section.matches) {
                 const cleanTime = match.time
                     .replace(/EST|BST|GMT/gi, "")
                     .replace(/\s+/g, " ")
                     .trim();
+
+                // Skip invalid matches or headlines
+                if (
+                    !cleanTime ||
+                    cleanTime.toLowerCase().includes("heading") ||
+                    cleanTime.toLowerCase().includes("latest") ||
+                    cleanTime.toLowerCase().includes("trending")
+                ) {
+                    continue;
+                }
+
+                if (!matchesByTime.has(cleanTime)) {
+                    matchesByTime.set(cleanTime, []);
+                }
+
                 const cleanMatch = match.match
                     .replace(/Preview:|prediction, team news, lineups/gi, "")
                     .replace(/\s+/g, " ")
                     .trim();
 
-                if (cleanTime && cleanMatch) {
-                    message += `⚽ ${cleanTime}EST ${cleanMatch}\n`;
+                if (cleanMatch && !cleanMatch.includes("revelation")) {
+                    matchesByTime.get(cleanTime)?.push({
+                        match: cleanMatch,
+                        url: match.url,
+                    });
+                }
+            }
+
+            // Add matches grouped by time
+            for (const [time, matches] of matchesByTime) {
+                if (matches.length === 1) {
+                    // Single match at this time
+                    message += `⚽ ${time}EST [${matches[0].match}](${matches[0].url})\n`;
+                } else {
+                    // Multiple matches at this time
+                    const matchStrings = matches
+                        .map((m) => `[${m.match}](${m.url})`)
+                        .join(" | ");
+                    message += `⚽ ${time}EST ${matchStrings}\n`;
                 }
             }
         }
