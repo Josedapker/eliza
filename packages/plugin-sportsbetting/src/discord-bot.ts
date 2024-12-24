@@ -159,6 +159,10 @@ export class DiscordBot {
                 return;
             }
 
+            // Hard-coded example date to match your screenshots.
+            // You can replace this with a dynamic date library if you prefer.
+            const dateString = "Sunday, December 22, 2024";
+
             const channel = await this.getChannel(channelId);
             if (!channel) {
                 console.error("Could not find channel");
@@ -168,21 +172,26 @@ export class DiscordBot {
             console.log('Received sections:', JSON.stringify(sections, null, 2));
             console.log('Received previews:', Array.from(previews.entries()));
 
-            // Create a concise summary message
-            const summaryContent = "**🎮 Today's Match Previews**\n\n" + 
-                sections.map(section => {
-                    console.log(`Processing section: ${section.section}`);
-                    console.log(`Matches in section:`, section.matches);
-                    
-                    return `**${section.section}**\n` +
-                        section.matches.map(match => {
-                            console.log(`Processing match:`, match);
-                            return `• ${match.match} - ${match.time}`;
-                        }).join('\n');
-                }).join('\n\n');
+            // Build the summary content with the desired heading and date
+            const summaryContent =
+                `**Today's Available Match Previews**\n\n${dateString}\n\n` +
+                sections
+                    .map(section => {
+                        console.log(`Processing section: ${section.section}`);
+                        console.log(`Matches in section:`, section.matches);
+
+                        return `**${section.section}**\n` +
+                            section.matches.map(match => {
+                                console.log(`Processing match:`, match);
+                                // Format each match line with a soccer-ball icon and "EST" after the time
+                                return `⚽ ${match.time} EST ${match.match}`;
+                            }).join('\n');
+                    })
+                    .join('\n\n');
 
             console.log('Final summary content:', summaryContent);
-            
+
+            // Send the main "today's previews" message
             const summaryMessage = await channel.send({
                 content: summaryContent
             });
@@ -200,7 +209,7 @@ export class DiscordBot {
 
                         const preview = previews.get(`${section.section}_${index}`);
                         console.log(`Preview data for ${match.match}:`, preview);
-                        
+
                         if (!preview) {
                             await thread.send("Preview data not available for this match.");
                             return;
@@ -229,7 +238,7 @@ export class DiscordBot {
                         const teamNewsMessage = [
                             "**👥 Team News**",
                             `**${preview.homeTeam}:**`,
-                            preview.teamNews?.home?.length 
+                            preview.teamNews?.home?.length
                                 ? preview.teamNews.home.map(news => `• ${news}`).join('\n')
                                 : "No team news available",
                             "",
@@ -261,10 +270,10 @@ export class DiscordBot {
 
     private splitMessage(content: string, maxLength: number = 2000): string[] {
         if (content.length <= maxLength) return [content];
-        
+
         const chunks: string[] = [];
         let currentChunk = "";
-        
+
         const lines = content.split("\n");
         for (const line of lines) {
             if (currentChunk.length + line.length + 1 > maxLength) {
@@ -274,11 +283,11 @@ export class DiscordBot {
                 currentChunk += line + "\n";
             }
         }
-        
+
         if (currentChunk) {
             chunks.push(currentChunk);
         }
-        
+
         return chunks;
     }
 

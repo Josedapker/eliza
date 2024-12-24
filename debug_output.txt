@@ -1,0 +1,351 @@
+Loading .env from: /Users/jose/Desktop/eliza12_15/.env
+✅ Environment variables loaded successfully
+Discord bot token: MTMxNTQyNTg2MDQzMzYw...
+
+📌 Starting main process...
+
+Bot logged in as Liga#7350
+✅ Bot logged in as Liga#7350
+✅ Successfully found Discord channel
+ℹ️  Initializing browser...
+Initializing browser...
+Creating browser context...
+Initializing adblocker...
+ℹ️  Navigating to previews page...
+Browser console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector
+Browser console: Failed to load resource: net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH
+Browser console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector
+Browser console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector
+Browser console: bottom of page reached - www - desktop
+Browser console: Powered by AMP ⚡ HTML – Version 2410292120000 https://www.sportsmole.co.uk/football/preview/
+Browser console: CMP AppConsent version : v32.5.2
+Browser console: Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector
+Browser console: An error has occurred on the init method TypeError: Failed to fetch
+    at F._fetch (https://cdn.appconsent.io/tcf2-clear/32.5.2/core.bundle.js:1:532586)
+    at F.hello (https://cdn.appconsent.io/tcf2-clear/32.5.2/core.bundle.js:1:530608)
+    at M.init (https://cdn.appconsent.io/tcf2-clear/32.5.2/core.bundle.js:1:511096)
+    at M.<anonymous> (https://cdn.appconsent.io/tcf2-clear/32.5.2/core.bundle.js:1:505300)
+    at e.apiCall (https://cdn.appconsent.io/tcf2-clear/32.5.2/core.bundle.js:1:1770)
+    at M.startCMP (https://cdn.appconsent.io/tcf2-clear/32.5.2/core.bundle.js:1:508263)
+    at new M (https://cdn.appconsent.io/tcf2-clear/32.5.2/core.bundle.js:1:508007)
+    at e.ui (https://cdn.appconsent.io/tcf2-clear/32.5.2/core.bundle.js:1:559902)
+    at https://cdn.appconsent.io/tcf2-clear/32.5.2/core.bundle.js:1:559934
+    at https://cdn.appconsent.io/tcf2-clear/32.5.2/core.bundle.js:1:560006
+Browser console: CheckIfMobile: false :
+✅ Page loaded
+
+=== DEBUG: Getting Preview Links ===
+✅ Page loaded completely
+
+Current URL: https://www.sportsmole.co.uk/football/preview/
+📸 Screenshot saved as debug-page.png
+
+=== Main Content Structure ===
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PFW3H6" height=0 width=0 style="display:none;visibility:hidden"></iframe></noscript><span class="hide"> MX23RW : Tuesday, December 24 02:51:18| &gt;&gt; :60:202:202: </span><div id="fb-root"></div><div id="twitter_div"></div>
+<div id="wrapper">
+<div id="header">
+<div id="toolbar">
+<div id="social">
+<a target="_blank" title="Facebook" href="https://www.facebook.com/sportsmole" id="social_fb" class="zI5"></a>
+<a target="_blank"...
+Browser console: Starting to look for preview links...
+Browser console: Found 43 preview links
+Browser console: Found match: Oman vs. Qatar: 11 hrs 33 mins at  in Other Matches
+Browser console: Found match: Previews at  in Other Matches
+Browser console: Found match: Preview: Oman vs. Qatar at  in Other Matches
+Browser console: Found match: Preview: UAE vs. Kuwait at  in Other Matches
+Browser console: Found match: Preview: Yemen vs. Saudi Arabia at  in Other Matches
+Browser console: Found match: Preview: Nuggets vs. Suns at  in Other Matches
+Browser console: Found match: Today's previews at  in Other Matches
+Browser console: Found match: Previews at  in Other Matches
+Browser console: Found match: Click here at  in Other Matches
+Browser console: Found match: 3pmCheltenham vs. Crewe at Thursday, December 26 2024 in Other Matches
+Browser console: Found match: 2.25pmOman vs. Qatar at Tuesday, December 24 2024 in Other Matches
+Browser console: Found match: 5.30pmUAE vs. Kuwait at 2.25pmOman vs. Qatar in Other Matches
+Browser console: Found match: 2.25pmYemen vs. Saudi Arabia at Wednesday, December 25 2024 in Other Matches
+Browser console: Found match: 5.30pmBahrain vs. Iraq at 2.25pmYemen vs. Saudi Arabia in Other Matches
+Browser console: Found match: CricketTest Series: Australia vs. India - prediction, team news, series so far at  in Other Matches
+Browser console: Found match: BasketballDenver Nuggets vs. Phoenix Suns - prediction, team news, form guide at  in Other Matches
+Browser console: Found match: BasketballOrlando Magic vs. Boston Celtics - prediction, team news, form guide at  in Other Matches
+Browser console: Found match: Previews at Fixtures & Results in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/46/luke-young.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" alt="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" width=124 height=93 />
+
+Preview: Cheltenham vs. Crewe - prediction, team news, lineups at Latest Sports Headlines in Other Matches
+Browser console: Found match: last new at 02:38 _(Tuesday 24 December 2024 02.38) at  in Latest Sports Headlines
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/46/luke-young.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" alt="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" width=124 height=93 />
+
+Preview: Cheltenham vs. Crewe - prediction, team news, lineups at Latest Preview Articles in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/52/australia.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Australian captain Pat Cummins on December 15, 2024" alt="Australian captain Pat Cummins on December 15, 2024" width=124 height=93 />
+
+Preview: Test Series: Australia vs. India - prediction, team news, series so far at <img class=most_popular_picture src="https://sm.imgix.net/24/46/luke-young.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" alt="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" width=124 height=93 />
+
+Preview: Cheltenham vs. Crewe - prediction, team news, lineups in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/42/luka-doncic.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luka Doncic of the Denver Nuggets pictured in April 2024" alt="Luka Doncic of the Denver Nuggets pictured in April 2024" width=124 height=93 />
+
+Preview: Denver Nuggets vs. Phoenix Suns - prediction, team news, form guide at <img class=most_popular_picture src="https://sm.imgix.net/24/52/australia.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Australian captain Pat Cummins on December 15, 2024" alt="Australian captain Pat Cummins on December 15, 2024" width=124 height=93 />
+
+Preview: Test Series: Australia vs. India - prediction, team news, series so far in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/52/herve-renard.jpeg?w=124&h=93&auto=compress,format&fit=clip" title=" Saudi Arabia coach Herve Renard pictured on November 13, 2024" alt=" Saudi Arabia coach Herve Renard pictured on November 13, 2024" width=124 height=93 />
+
+Preview: Yemen vs. Saudi Arabia - prediction, team news, lineups at <img class=most_popular_picture src="https://sm.imgix.net/24/42/luka-doncic.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luka Doncic of the Denver Nuggets pictured in April 2024" alt="Luka Doncic of the Denver Nuggets pictured in April 2024" width=124 height=93 />
+
+Preview: Denver Nuggets vs. Phoenix Suns - prediction, team news, form guide in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/51/hamad-al-shamsan.jpeg?w=124&h=93&auto=compress,format&fit=clip" title="Hamad Al-Shamsan of Bahrain pictured on November 13, 2024" alt="Hamad Al-Shamsan of Bahrain pictured on November 13, 2024" width=124 height=93 />
+
+Preview: Bahrain vs. Iraq - prediction, team news, lineups at <img class=most_popular_picture src="https://sm.imgix.net/24/52/herve-renard.jpeg?w=124&h=93&auto=compress,format&fit=clip" title=" Saudi Arabia coach Herve Renard pictured on November 13, 2024" alt=" Saudi Arabia coach Herve Renard pictured on November 13, 2024" width=124 height=93 />
+
+Preview: Yemen vs. Saudi Arabia - prediction, team news, lineups in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/51/issam-faiz.jpeg?w=124&h=93&auto=compress,format&fit=clip" title="Issam Faiz of the United Arab Emirates pictured on September 4,  2024" alt="Issam Faiz of the United Arab Emirates pictured on September 4,  2024" width=124 height=93 />
+
+Preview: UAE vs. Kuwait - prediction, team news, lineups at <img class=most_popular_picture src="https://sm.imgix.net/24/51/hamad-al-shamsan.jpeg?w=124&h=93&auto=compress,format&fit=clip" title="Hamad Al-Shamsan of Bahrain pictured on November 13, 2024" alt="Hamad Al-Shamsan of Bahrain pictured on November 13, 2024" width=124 height=93 />
+
+Preview: Bahrain vs. Iraq - prediction, team news, lineups in Other Matches
+Browser console: Found match: Previews at Stat Centre in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/46/luke-young.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" alt="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" width=124 height=93 />
+
+Preview: Cheltenham vs. Crewe - prediction, team news, lineups at Trending Football Stories in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/23/32/wilmar-barrios.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Colombia midfielder Wilmar Barrios before the match against Mexico at Levi's Stadium on September 27, 2022" alt="Colombia midfielder Wilmar Barrios before the match against Mexico at Levi's Stadium on September 27, 2022" width=124 height=93 />
+
+Preview: Colombia vs. Venezuela - prediction, team news, lineups at Latest World Cup 2022 Stories in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/46/ireland.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Hugo Keenan of Ireland on November 10, 2024" alt="Hugo Keenan of Ireland on November 10, 2024" width=124 height=93 />
+
+Preview: Ireland vs. Australia - prediction, team news, lineups at Trending Rugby Union Stories in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/47/england.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Steve Borthwick England on November 20, 2024" alt="Steve Borthwick England on November 20, 2024" width=124 height=93 />
+
+Preview: England vs. Japan - prediction, team news, lineups at <img class=most_popular_picture src="https://sm.imgix.net/24/46/ireland.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Hugo Keenan of Ireland on November 10, 2024" alt="Hugo Keenan of Ireland on November 10, 2024" width=124 height=93 />
+
+Preview: Ireland vs. Australia - prediction, team news, lineups in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/46/scotland_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Sione Tuipulotu and Jack Dempsey of Scotland on November 10, 2024" alt="Sione Tuipulotu and Jack Dempsey of Scotland on November 10, 2024" width=124 height=93 />
+
+Preview: Scotland vs. Australia - prediction, team news, lineups at <img class=most_popular_picture src="https://sm.imgix.net/24/47/england.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Steve Borthwick England on November 20, 2024" alt="Steve Borthwick England on November 20, 2024" width=124 height=93 />
+
+Preview: England vs. Japan - prediction, team news, lineups in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/46/wales_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Warren Gatland of Wales on November 10, 2024" alt="Warren Gatland of Wales on November 10, 2024" width=124 height=93 />
+
+Preview: Wales vs. South Africa - prediction, team news, lineups at <img class=most_popular_picture src="https://sm.imgix.net/24/46/scotland_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Sione Tuipulotu and Jack Dempsey of Scotland on November 10, 2024" alt="Sione Tuipulotu and Jack Dempsey of Scotland on November 10, 2024" width=124 height=93 />
+
+Preview: Scotland vs. Australia - prediction, team news, lineups in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/46/new-zealand.jpg?w=124&h=93&auto=compress,format&fit=clip" title="New Zealand on November 10, 2024" alt="New Zealand on November 10, 2024" width=124 height=93 />
+
+Preview: Italy vs. New Zealand - prediction, team news, lineups at <img class=most_popular_picture src="https://sm.imgix.net/24/46/wales_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Warren Gatland of Wales on November 10, 2024" alt="Warren Gatland of Wales on November 10, 2024" width=124 height=93 />
+
+Preview: Wales vs. South Africa - prediction, team news, lineups in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/52/australia.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Australian captain Pat Cummins on December 15, 2024" alt="Australian captain Pat Cummins on December 15, 2024" width=124 height=93 />
+
+Preview: Test Series: Australia vs. India - prediction, team news, series so far at Trending Cricket Stories in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/46/west-indies_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="West Indies Nicholas Pooran  on November 10, 2024" alt="West Indies Nicholas Pooran  on November 10, 2024" width=124 height=93 />
+
+Preview: T20 Series: West Indies vs. England - prediction, team news, series so far at <img class=most_popular_picture src="https://sm.imgix.net/24/46/jude-bellingham.jpg?w=124&h=93&auto=compress,format&fit=clip" title="England's Jude Bellingham reacts on November 17, 2024" alt="England's Jude Bellingham reacts on November 17, 2024" width=124 height=93 />
+
+Is Jude your winner? Sports Personality of the Year nominees revealed! in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/45/west-indies.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Shai Hope is batting for the West Indies on November 3, 2024" alt="Shai Hope is batting for the West Indies on November 3, 2024" width=124 height=93 />
+
+Preview: T20 Series: West Indies vs. England - prediction, team news, series so far at <img class=most_popular_picture src="https://sm.imgix.net/24/46/west-indies_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="West Indies Nicholas Pooran  on November 10, 2024" alt="West Indies Nicholas Pooran  on November 10, 2024" width=124 height=93 />
+
+Preview: T20 Series: West Indies vs. England - prediction, team news, series so far in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/45/west-indies.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Shai Hope is batting for the West Indies on November 3, 2024" alt="Shai Hope is batting for the West Indies on November 3, 2024" width=124 height=93 />
+
+Preview: One Day International Series: West Indies vs. England - prediction, team news, series so f... at <img class=most_popular_picture src="https://sm.imgix.net/24/45/west-indies.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Shai Hope is batting for the West Indies on November 3, 2024" alt="Shai Hope is batting for the West Indies on November 3, 2024" width=124 height=93 />
+
+Preview: T20 Series: West Indies vs. England - prediction, team news, series so far in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/42/luka-doncic.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luka Doncic of the Denver Nuggets pictured in April 2024" alt="Luka Doncic of the Denver Nuggets pictured in April 2024" width=124 height=93 />
+
+Preview: Denver Nuggets vs. Phoenix Suns - prediction, team news, form guide at Trending Basketball Stories in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/44/orlando-magic_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title=" Orlando Magic coach Jamahl Mosley on November 2, 2024" alt=" Orlando Magic coach Jamahl Mosley on November 2, 2024" width=124 height=93 />
+
+Preview: Orlando Magic vs. Boston Celtics - prediction, team news, form guide at <img class=most_popular_picture src="https://sm.imgix.net/24/42/luka-doncic.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luka Doncic of the Denver Nuggets pictured in April 2024" alt="Luka Doncic of the Denver Nuggets pictured in April 2024" width=124 height=93 />
+
+Preview: Denver Nuggets vs. Phoenix Suns - prediction, team news, form guide in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/44/pelicans.jpg?w=124&h=93&auto=compress,format&fit=clip" title=" New Orleans Pelicans head coach Willie Green and New Orleans Pelicans guard CJ McCollumon October 26, 2024" alt=" New Orleans Pelicans head coach Willie Green and New Orleans Pelicans guard CJ McCollumon October 26, 2024" width=124 height=93 />
+
+Preview: New Orleans Pelicans vs. Denver Nuggets - prediction, team news, form guide at <img class=most_popular_picture src="https://sm.imgix.net/24/44/orlando-magic_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title=" Orlando Magic coach Jamahl Mosley on November 2, 2024" alt=" Orlando Magic coach Jamahl Mosley on November 2, 2024" width=124 height=93 />
+
+Preview: Orlando Magic vs. Boston Celtics - prediction, team news, form guide in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/41/the-memphis-grizzlies.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Ja Morant of the Memphis Grizzlies pictured on January 5, 2024" alt="Ja Morant of the Memphis Grizzlies pictured on January 5, 2024" width=124 height=93 />
+
+Preview: Atlanta Hawks vs. Memphis Grizzlies - prediction, team news, form guide at <img class=most_popular_picture src="https://sm.imgix.net/24/44/pelicans.jpg?w=124&h=93&auto=compress,format&fit=clip" title=" New Orleans Pelicans head coach Willie Green and New Orleans Pelicans guard CJ McCollumon October 26, 2024" alt=" New Orleans Pelicans head coach Willie Green and New Orleans Pelicans guard CJ McCollumon October 26, 2024" width=124 height=93 />
+
+Preview: New Orleans Pelicans vs. Denver Nuggets - prediction, team news, form guide in Other Matches
+Browser console: Found match: <img class=most_popular_picture src="https://sm.imgix.net/24/51/giannis-antetokounmpo.jpg?w=124&h=93&auto=compress,format&fit=clip" title="The Milwaukee Bucks' Giannis Antetokounmpo celebrates winning the NBA Cup on December 17, 2024" alt="The Milwaukee Bucks' Giannis Antetokounmpo celebrates winning the NBA Cup on December 17, 2024" width=124 height=93 />
+
+Preview: Cleveland Cavaliers vs. Milwaukee Bucks - prediction, team news, form guide at <img class=most_popular_picture src="https://sm.imgix.net/24/41/the-memphis-grizzlies.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Ja Morant of the Memphis Grizzlies pictured on January 5, 2024" alt="Ja Morant of the Memphis Grizzlies pictured on January 5, 2024" width=124 height=93 />
+
+Preview: Atlanta Hawks vs. Memphis Grizzlies - prediction, team news, form guide in Other Matches
+
+=== Found Sections ===
+
+Section 1: Other Matches
+  Match 1:  - Oman vs. Qatar: 11 hrs 33 mins
+  URL: https://www.sportsmole.co.uk/football/oman/preview/preview-oman-vs-qatar-prediction-team-news-lineups_561186.html
+  Match 2:  - Previews
+  URL: https://www.sportsmole.co.uk/football/preview/
+  Match 3:  - Preview: Oman vs. Qatar
+  URL: https://www.sportsmole.co.uk/football/oman/preview/preview-oman-vs-qatar-prediction-team-news-lineups_561186.html
+  Match 4:  - Preview: UAE vs. Kuwait
+  URL: https://www.sportsmole.co.uk/football/united-arab-emirates/preview/preview-uae-vs-kuwait-prediction-team-news-lineups_561187.html
+  Match 5:  - Preview: Yemen vs. Saudi Arabia
+  URL: https://www.sportsmole.co.uk/football/yemen/preview/preview-yemen-vs-saudi-arabia-prediction-team-news-lineups_561228.html
+  Match 6:  - Preview: Nuggets vs. Suns
+  URL: https://www.sportsmole.co.uk/basketball/denver-nuggets/preview/preview-denver-nuggets-vs-phoenix-suns-prediction-team-news-form-guide_561240.html
+  Match 7:  - Today's previews
+  URL: https://www.sportsmole.co.uk/football/preview/
+  Match 8:  - Previews
+  URL: https://www.sportsmole.co.uk/football/preview/
+  Match 9:  - Click here
+  URL: https://www.sportsmole.co.uk/football/preview/subscribe.html?no-amp=1
+  Match 10: Thursday, December 26 2024 - 3pmCheltenham vs. Crewe
+  URL: https://www.sportsmole.co.uk/football/cheltenham-town/preview/preview-cheltenham-vs-crewe-prediction-team-news-lineups_561293.html
+  Match 11: Tuesday, December 24 2024 - 2.25pmOman vs. Qatar
+  URL: https://www.sportsmole.co.uk/football/oman/preview/preview-oman-vs-qatar-prediction-team-news-lineups_561186.html
+  Match 12: 2.25pmOman vs. Qatar - 5.30pmUAE vs. Kuwait
+  URL: https://www.sportsmole.co.uk/football/united-arab-emirates/preview/preview-uae-vs-kuwait-prediction-team-news-lineups_561187.html
+  Match 13: Wednesday, December 25 2024 - 2.25pmYemen vs. Saudi Arabia
+  URL: https://www.sportsmole.co.uk/football/yemen/preview/preview-yemen-vs-saudi-arabia-prediction-team-news-lineups_561228.html
+  Match 14: 2.25pmYemen vs. Saudi Arabia - 5.30pmBahrain vs. Iraq
+  URL: https://www.sportsmole.co.uk/football/bahrain/preview/preview-bahrain-vs-iraq-prediction-team-news-lineups_561227.html
+  Match 15:  - CricketTest Series: Australia vs. India - prediction, team news, series so far
+  URL: https://www.sportsmole.co.uk/cricket/australia/preview/preview-test-series-australia-vs-india-prediction-team-news-series-so-far_561242.html
+  Match 16:  - BasketballDenver Nuggets vs. Phoenix Suns - prediction, team news, form guide
+  URL: https://www.sportsmole.co.uk/basketball/denver-nuggets/preview/preview-denver-nuggets-vs-phoenix-suns-prediction-team-news-form-guide_561240.html
+  Match 17:  - BasketballOrlando Magic vs. Boston Celtics - prediction, team news, form guide
+  URL: https://www.sportsmole.co.uk/basketball/orlando-magic/preview/preview-orlando-magic-vs-boston-celtics-prediction-team-news-form-guide_561189.html
+  Match 18: Fixtures & Results - Previews
+  URL: https://www.sportsmole.co.uk/football/preview/
+  Match 19: Latest Sports Headlines - <img class=most_popular_picture src="https://sm.imgix.net/24/46/luke-young.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" alt="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" width=124 height=93 />
+
+Preview: Cheltenham vs. Crewe - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/football/cheltenham-town/preview/preview-cheltenham-vs-crewe-prediction-team-news-lineups_561293.html
+  Match 20: Latest Preview Articles - <img class=most_popular_picture src="https://sm.imgix.net/24/46/luke-young.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" alt="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" width=124 height=93 />
+
+Preview: Cheltenham vs. Crewe - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/football/cheltenham-town/preview/preview-cheltenham-vs-crewe-prediction-team-news-lineups_561293.html
+  Match 21: <img class=most_popular_picture src="https://sm.imgix.net/24/46/luke-young.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" alt="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" width=124 height=93 />
+
+Preview: Cheltenham vs. Crewe - prediction, team news, lineups - <img class=most_popular_picture src="https://sm.imgix.net/24/52/australia.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Australian captain Pat Cummins on December 15, 2024" alt="Australian captain Pat Cummins on December 15, 2024" width=124 height=93 />
+
+Preview: Test Series: Australia vs. India - prediction, team news, series so far
+  URL: https://www.sportsmole.co.uk/cricket/australia/preview/preview-test-series-australia-vs-india-prediction-team-news-series-so-far_561242.html
+  Match 22: <img class=most_popular_picture src="https://sm.imgix.net/24/52/australia.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Australian captain Pat Cummins on December 15, 2024" alt="Australian captain Pat Cummins on December 15, 2024" width=124 height=93 />
+
+Preview: Test Series: Australia vs. India - prediction, team news, series so far - <img class=most_popular_picture src="https://sm.imgix.net/24/42/luka-doncic.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luka Doncic of the Denver Nuggets pictured in April 2024" alt="Luka Doncic of the Denver Nuggets pictured in April 2024" width=124 height=93 />
+
+Preview: Denver Nuggets vs. Phoenix Suns - prediction, team news, form guide
+  URL: https://www.sportsmole.co.uk/basketball/denver-nuggets/preview/preview-denver-nuggets-vs-phoenix-suns-prediction-team-news-form-guide_561240.html
+  Match 23: <img class=most_popular_picture src="https://sm.imgix.net/24/42/luka-doncic.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luka Doncic of the Denver Nuggets pictured in April 2024" alt="Luka Doncic of the Denver Nuggets pictured in April 2024" width=124 height=93 />
+
+Preview: Denver Nuggets vs. Phoenix Suns - prediction, team news, form guide - <img class=most_popular_picture src="https://sm.imgix.net/24/52/herve-renard.jpeg?w=124&h=93&auto=compress,format&fit=clip" title=" Saudi Arabia coach Herve Renard pictured on November 13, 2024" alt=" Saudi Arabia coach Herve Renard pictured on November 13, 2024" width=124 height=93 />
+
+Preview: Yemen vs. Saudi Arabia - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/football/yemen/preview/preview-yemen-vs-saudi-arabia-prediction-team-news-lineups_561228.html
+  Match 24: <img class=most_popular_picture src="https://sm.imgix.net/24/52/herve-renard.jpeg?w=124&h=93&auto=compress,format&fit=clip" title=" Saudi Arabia coach Herve Renard pictured on November 13, 2024" alt=" Saudi Arabia coach Herve Renard pictured on November 13, 2024" width=124 height=93 />
+
+Preview: Yemen vs. Saudi Arabia - prediction, team news, lineups - <img class=most_popular_picture src="https://sm.imgix.net/24/51/hamad-al-shamsan.jpeg?w=124&h=93&auto=compress,format&fit=clip" title="Hamad Al-Shamsan of Bahrain pictured on November 13, 2024" alt="Hamad Al-Shamsan of Bahrain pictured on November 13, 2024" width=124 height=93 />
+
+Preview: Bahrain vs. Iraq - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/football/bahrain/preview/preview-bahrain-vs-iraq-prediction-team-news-lineups_561227.html
+  Match 25: <img class=most_popular_picture src="https://sm.imgix.net/24/51/hamad-al-shamsan.jpeg?w=124&h=93&auto=compress,format&fit=clip" title="Hamad Al-Shamsan of Bahrain pictured on November 13, 2024" alt="Hamad Al-Shamsan of Bahrain pictured on November 13, 2024" width=124 height=93 />
+
+Preview: Bahrain vs. Iraq - prediction, team news, lineups - <img class=most_popular_picture src="https://sm.imgix.net/24/51/issam-faiz.jpeg?w=124&h=93&auto=compress,format&fit=clip" title="Issam Faiz of the United Arab Emirates pictured on September 4,  2024" alt="Issam Faiz of the United Arab Emirates pictured on September 4,  2024" width=124 height=93 />
+
+Preview: UAE vs. Kuwait - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/football/united-arab-emirates/preview/preview-uae-vs-kuwait-prediction-team-news-lineups_561187.html
+  Match 26: Stat Centre - Previews
+  URL: https://www.sportsmole.co.uk/football/preview/
+  Match 27: Trending Football Stories - <img class=most_popular_picture src="https://sm.imgix.net/24/46/luke-young.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" alt="Luke Young of Cheltenham Town applauds the fans after his side's EFL Cup match against Plymouth Argyle, on 14 August 2024" width=124 height=93 />
+
+Preview: Cheltenham vs. Crewe - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/football/cheltenham-town/preview/preview-cheltenham-vs-crewe-prediction-team-news-lineups_561293.html
+  Match 28: Latest World Cup 2022 Stories - <img class=most_popular_picture src="https://sm.imgix.net/23/32/wilmar-barrios.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Colombia midfielder Wilmar Barrios before the match against Mexico at Levi's Stadium on September 27, 2022" alt="Colombia midfielder Wilmar Barrios before the match against Mexico at Levi's Stadium on September 27, 2022" width=124 height=93 />
+
+Preview: Colombia vs. Venezuela - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/football/colombia/world-cup-2022/preview/preview-colombia-vs-venezuela-prediction-team-news-lineups_523307.html
+  Match 29: Trending Rugby Union Stories - <img class=most_popular_picture src="https://sm.imgix.net/24/46/ireland.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Hugo Keenan of Ireland on November 10, 2024" alt="Hugo Keenan of Ireland on November 10, 2024" width=124 height=93 />
+
+Preview: Ireland vs. Australia - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/rugby-union/ireland/autumn-nations-cup/preview/preview-ireland-vs-australia-prediction-team-news-lineups_559306.html
+  Match 30: <img class=most_popular_picture src="https://sm.imgix.net/24/46/ireland.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Hugo Keenan of Ireland on November 10, 2024" alt="Hugo Keenan of Ireland on November 10, 2024" width=124 height=93 />
+
+Preview: Ireland vs. Australia - prediction, team news, lineups - <img class=most_popular_picture src="https://sm.imgix.net/24/47/england.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Steve Borthwick England on November 20, 2024" alt="Steve Borthwick England on November 20, 2024" width=124 height=93 />
+
+Preview: England vs. Japan - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/rugby-union/england/autumn-nations-cup/preview/preview-england-vs-japan-prediction-team-news-lineups_558819.html
+  Match 31: <img class=most_popular_picture src="https://sm.imgix.net/24/47/england.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Steve Borthwick England on November 20, 2024" alt="Steve Borthwick England on November 20, 2024" width=124 height=93 />
+
+Preview: England vs. Japan - prediction, team news, lineups - <img class=most_popular_picture src="https://sm.imgix.net/24/46/scotland_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Sione Tuipulotu and Jack Dempsey of Scotland on November 10, 2024" alt="Sione Tuipulotu and Jack Dempsey of Scotland on November 10, 2024" width=124 height=93 />
+
+Preview: Scotland vs. Australia - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/rugby-union/scotland/autumn-nations-cup/preview/preview-scotland-vs-australia-prediction-team-news-lineups_558811.html
+  Match 32: <img class=most_popular_picture src="https://sm.imgix.net/24/46/scotland_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Sione Tuipulotu and Jack Dempsey of Scotland on November 10, 2024" alt="Sione Tuipulotu and Jack Dempsey of Scotland on November 10, 2024" width=124 height=93 />
+
+Preview: Scotland vs. Australia - prediction, team news, lineups - <img class=most_popular_picture src="https://sm.imgix.net/24/46/wales_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Warren Gatland of Wales on November 10, 2024" alt="Warren Gatland of Wales on November 10, 2024" width=124 height=93 />
+
+Preview: Wales vs. South Africa - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/rugby-union/wales/autumn-nations-cup/preview/preview-wales-vs-south-africa-prediction-team-news-lineups_558713.html
+  Match 33: <img class=most_popular_picture src="https://sm.imgix.net/24/46/wales_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Warren Gatland of Wales on November 10, 2024" alt="Warren Gatland of Wales on November 10, 2024" width=124 height=93 />
+
+Preview: Wales vs. South Africa - prediction, team news, lineups - <img class=most_popular_picture src="https://sm.imgix.net/24/46/new-zealand.jpg?w=124&h=93&auto=compress,format&fit=clip" title="New Zealand on November 10, 2024" alt="New Zealand on November 10, 2024" width=124 height=93 />
+
+Preview: Italy vs. New Zealand - prediction, team news, lineups
+  URL: https://www.sportsmole.co.uk/rugby-union/italy/autumn-nations-cup/preview/preview-italy-vs-new-zealand-prediction-team-news-lineups_558706.html
+  Match 34: Trending Cricket Stories - <img class=most_popular_picture src="https://sm.imgix.net/24/52/australia.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Australian captain Pat Cummins on December 15, 2024" alt="Australian captain Pat Cummins on December 15, 2024" width=124 height=93 />
+
+Preview: Test Series: Australia vs. India - prediction, team news, series so far
+  URL: https://www.sportsmole.co.uk/cricket/australia/preview/preview-test-series-australia-vs-india-prediction-team-news-series-so-far_561242.html
+  Match 35: <img class=most_popular_picture src="https://sm.imgix.net/24/46/jude-bellingham.jpg?w=124&h=93&auto=compress,format&fit=clip" title="England's Jude Bellingham reacts on November 17, 2024" alt="England's Jude Bellingham reacts on November 17, 2024" width=124 height=93 />
+
+Is Jude your winner? Sports Personality of the Year nominees revealed! - <img class=most_popular_picture src="https://sm.imgix.net/24/46/west-indies_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="West Indies Nicholas Pooran  on November 10, 2024" alt="West Indies Nicholas Pooran  on November 10, 2024" width=124 height=93 />
+
+Preview: T20 Series: West Indies vs. England - prediction, team news, series so far
+  URL: https://www.sportsmole.co.uk/cricket/west-indies/preview/preview-t20-series-west-indies-vs-england-prediction-team-news-series-so-far_558188.html
+  Match 36: <img class=most_popular_picture src="https://sm.imgix.net/24/46/west-indies_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title="West Indies Nicholas Pooran  on November 10, 2024" alt="West Indies Nicholas Pooran  on November 10, 2024" width=124 height=93 />
+
+Preview: T20 Series: West Indies vs. England - prediction, team news, series so far - <img class=most_popular_picture src="https://sm.imgix.net/24/45/west-indies.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Shai Hope is batting for the West Indies on November 3, 2024" alt="Shai Hope is batting for the West Indies on November 3, 2024" width=124 height=93 />
+
+Preview: T20 Series: West Indies vs. England - prediction, team news, series so far
+  URL: https://www.sportsmole.co.uk/cricket/west-indies/preview/preview-t20-series-west-indies-vs-england-prediction-team-news-series-so-far_557974.html
+  Match 37: <img class=most_popular_picture src="https://sm.imgix.net/24/45/west-indies.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Shai Hope is batting for the West Indies on November 3, 2024" alt="Shai Hope is batting for the West Indies on November 3, 2024" width=124 height=93 />
+
+Preview: T20 Series: West Indies vs. England - prediction, team news, series so far - <img class=most_popular_picture src="https://sm.imgix.net/24/45/west-indies.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Shai Hope is batting for the West Indies on November 3, 2024" alt="Shai Hope is batting for the West Indies on November 3, 2024" width=124 height=93 />
+
+Preview: One Day International Series: West Indies vs. England - prediction, team news, series so f...
+  URL: https://www.sportsmole.co.uk/cricket/west-indies/preview/preview-one-day-international-series-west-indies-vs-england-prediction-team-news-series-so-far_557345.html
+  Match 38: Trending Basketball Stories - <img class=most_popular_picture src="https://sm.imgix.net/24/42/luka-doncic.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luka Doncic of the Denver Nuggets pictured in April 2024" alt="Luka Doncic of the Denver Nuggets pictured in April 2024" width=124 height=93 />
+
+Preview: Denver Nuggets vs. Phoenix Suns - prediction, team news, form guide
+  URL: https://www.sportsmole.co.uk/basketball/denver-nuggets/preview/preview-denver-nuggets-vs-phoenix-suns-prediction-team-news-form-guide_561240.html
+  Match 39: <img class=most_popular_picture src="https://sm.imgix.net/24/42/luka-doncic.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Luka Doncic of the Denver Nuggets pictured in April 2024" alt="Luka Doncic of the Denver Nuggets pictured in April 2024" width=124 height=93 />
+
+Preview: Denver Nuggets vs. Phoenix Suns - prediction, team news, form guide - <img class=most_popular_picture src="https://sm.imgix.net/24/44/orlando-magic_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title=" Orlando Magic coach Jamahl Mosley on November 2, 2024" alt=" Orlando Magic coach Jamahl Mosley on November 2, 2024" width=124 height=93 />
+
+Preview: Orlando Magic vs. Boston Celtics - prediction, team news, form guide
+  URL: https://www.sportsmole.co.uk/basketball/orlando-magic/preview/preview-orlando-magic-vs-boston-celtics-prediction-team-news-form-guide_561189.html
+  Match 40: <img class=most_popular_picture src="https://sm.imgix.net/24/44/orlando-magic_1.jpg?w=124&h=93&auto=compress,format&fit=clip" title=" Orlando Magic coach Jamahl Mosley on November 2, 2024" alt=" Orlando Magic coach Jamahl Mosley on November 2, 2024" width=124 height=93 />
+
+Preview: Orlando Magic vs. Boston Celtics - prediction, team news, form guide - <img class=most_popular_picture src="https://sm.imgix.net/24/44/pelicans.jpg?w=124&h=93&auto=compress,format&fit=clip" title=" New Orleans Pelicans head coach Willie Green and New Orleans Pelicans guard CJ McCollumon October 26, 2024" alt=" New Orleans Pelicans head coach Willie Green and New Orleans Pelicans guard CJ McCollumon October 26, 2024" width=124 height=93 />
+
+Preview: New Orleans Pelicans vs. Denver Nuggets - prediction, team news, form guide
+  URL: https://www.sportsmole.co.uk/basketball/new-orleans-pelicans/preview/preview-new-orleans-pelicans-vs-denver-nuggets-prediction-team-news-form-guide_561148.html
+  Match 41: <img class=most_popular_picture src="https://sm.imgix.net/24/44/pelicans.jpg?w=124&h=93&auto=compress,format&fit=clip" title=" New Orleans Pelicans head coach Willie Green and New Orleans Pelicans guard CJ McCollumon October 26, 2024" alt=" New Orleans Pelicans head coach Willie Green and New Orleans Pelicans guard CJ McCollumon October 26, 2024" width=124 height=93 />
+
+Preview: New Orleans Pelicans vs. Denver Nuggets - prediction, team news, form guide - <img class=most_popular_picture src="https://sm.imgix.net/24/41/the-memphis-grizzlies.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Ja Morant of the Memphis Grizzlies pictured on January 5, 2024" alt="Ja Morant of the Memphis Grizzlies pictured on January 5, 2024" width=124 height=93 />
+
+Preview: Atlanta Hawks vs. Memphis Grizzlies - prediction, team news, form guide
+  URL: https://www.sportsmole.co.uk/basketball/atlanta-hawks/preview/preview-atlanta-hawks-vs-memphis-grizzlies-prediction-team-news-form-guide_561065.html
+  Match 42: <img class=most_popular_picture src="https://sm.imgix.net/24/41/the-memphis-grizzlies.jpg?w=124&h=93&auto=compress,format&fit=clip" title="Ja Morant of the Memphis Grizzlies pictured on January 5, 2024" alt="Ja Morant of the Memphis Grizzlies pictured on January 5, 2024" width=124 height=93 />
+
+Preview: Atlanta Hawks vs. Memphis Grizzlies - prediction, team news, form guide - <img class=most_popular_picture src="https://sm.imgix.net/24/51/giannis-antetokounmpo.jpg?w=124&h=93&auto=compress,format&fit=clip" title="The Milwaukee Bucks' Giannis Antetokounmpo celebrates winning the NBA Cup on December 17, 2024" alt="The Milwaukee Bucks' Giannis Antetokounmpo celebrates winning the NBA Cup on December 17, 2024" width=124 height=93 />
+
+Preview: Cleveland Cavaliers vs. Milwaukee Bucks - prediction, team news, form guide
+  URL: https://www.sportsmole.co.uk/basketball/milwaukee-bucks/preview/preview-cleveland-cavaliers-vs-milwaukee-bucks-prediction-team-news-form-guide_560937.html
+
+Section 2: Latest Sports Headlines
+  Match 1:  - last new at 02:38 _(Tuesday 24 December 2024 02.38)
+  URL: https://www.sportsmole.co.uk/football/cheltenham-town/preview/preview-cheltenham-vs-crewe-prediction-team-news-lineups_561293.html
+ℹ️  Found 2 preview sections
+
+📌 Processing section: Other Matches
+
+
+📌 Processing section: Latest Sports Headlines
+
+ℹ️  Script execution finished

@@ -2,11 +2,11 @@ import axios from "axios";
 import * as dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
-import { ConsoleMessage, Page, Route } from "playwright";
+import { Page } from "playwright";
 
 import { DiscordBot } from "./discord-bot";
 import { BrowserService } from "./services/browser";
-import { MatchPreview, PreviewSection, PreviewMatch } from './types';
+import { MatchPreview, PreviewSection } from "./types";
 
 // Additional interfaces
 interface CacheEntry {
@@ -196,54 +196,141 @@ async function navigateWithRetry(
 
 async function getPreviewLinks(page: Page): Promise<PreviewSection[]> {
     try {
-        console.log("Getting preview links...");
-        const previewLinks: PreviewSection[] = [];
-        let currentSection: PreviewSection | undefined;
+        // Wait for the page to load completely
+        await page.waitForLoadState("networkidle");
 
-        const rows = await page.$$("table.matches tr");
+        // Now let's specifically look for preview links
+        const sections = await page.evaluate(() => {
+            // Helper function to clean text (remove HTML and extra whitespace)
+            const cleanText = (text: string): string => {
+                return text
+                    .replace(/<[^>]*>/g, "")
+                    .replace(/\s+/g, " ")
+                    .trim();
+            };
 
-        for (const row of rows) {
-            const isSection = await row.getAttribute("class") === "section";
-            
-            if (isSection) {
-                if (currentSection) {
-                    previewLinks.push(currentSection);
+            // Helper function to extract competition ID
+            const extractCompetitionId = (href: string): string => {
+                const matches = href.match(/\/(\d+)\//);
+                return matches ? matches[1] : "";
+            };
+
+            // Find all competition sections
+            const competitions = new Map<
+                string,
+                {
+                    id: string;
+                    matches: Array<{
+                        time: string;
+                        match: string;
+                        url: string;
+                    }>;
                 }
-                const sectionTitle = await row.$eval("td", (el) => el.textContent?.trim() || "");
-                currentSection = {
-                    section: sectionTitle,
-                    matches: []
-                };
-            } else if (currentSection) {
-                const cells = await row.$$("td");
-                if (cells.length >= 3) {
-                    const time = await cells[0].evaluate((el) => el.textContent?.trim() || "");
-                    const matchCell = cells[2];
-                    const matchText = await matchCell.evaluate((el) => el.textContent?.trim() || "");
-                    const matchLink = await matchCell.$eval("a", (el) => el.getAttribute("href") || "");
+            >();
 
-                    currentSection.matches.push({
-                        time,
-                        match: matchText,
-                        url: matchLink
-                    });
-                }
-            }
-        }
+            // Process each match preview link
+            document
+                .querySelectorAll('a[href*="/preview/"]')
+                .forEach((link) => {
+                    const href = link.getAttribute("href") || "";
+                    const matchText = cleanText(link.textContent || "");
 
-        if (currentSection && currentSection.matches.length > 0) {
-            previewLinks.push(currentSection);
-        }
+                    // Skip if not a valid match preview
+                    if (
+                        !href.includes("prediction-team-news-lineups") ||
+                        !matchText.includes("vs")
+                    ) {
+                        return;
+                    }
 
-        // Log preview sections for debugging
-        previewLinks.forEach((section) => {
-            console.log(`\nSection: ${section.section}`);
-            section.matches.forEach((match) => {
-                console.log(`${match.time} - ${match.match}`);
-            });
+                    // Extract competition name from URL path
+                    const urlParts = href.split("/");
+                    const competitionPart = urlParts.find(
+                        (part) =>
+                            part.includes("serie-") ||
+                            part.includes("league-") ||
+                            part.includes("primeira-liga") ||
+                            part.includes("cup")
+                    );
+
+                    let competitionName = competitionPart
+                        ? competitionPart
+                              .split("-")
+                              .map(
+                                  (word) =>
+                                      word.charAt(0).toUpperCase() +
+                                      word.slice(1)
+                              )
+                              .join(" ")
+                        : "Unknown";
+
+                    // Clean up competition name
+                    competitionName = competitionName
+                        .replace(/-/g, " ")
+                        .replace(/Football|Rugby Union|Cricket/g, "")
+                        .trim();
+
+                    // Get competition ID from URL
+                    const competitionId = extractCompetitionId(href);
+                    const fullCompetitionName = `${competitionName}${competitionId}`;
+
+                    // Find match time
+                    let timeElement = link.previousElementSibling;
+                    let time = cleanText(
+                        timeElement?.textContent || "Time TBA"
+                    );
+
+                    // Clean up match text
+                    const cleanMatchText = matchText
+                        .replace(
+                            /Preview:|prediction, team news, lineups/gi,
+                            ""
+                        )
+                        .replace(/\s+/g, " ")
+                        .trim()
+                        .replace(/ vs /g, " vs. ");
+
+                    // Skip if we don't have valid match text or if it's a header
+                    if (!cleanMatchText || cleanMatchText === "-") return;
+                    if (
+                        time.toLowerCase().includes("preview") ||
+                        time.toLowerCase().includes("stories") ||
+                        time.toLowerCase().includes("trending")
+                    )
+                        return;
+
+                    // Create competition entry if it doesn't exist
+                    if (!competitions.has(fullCompetitionName)) {
+                        competitions.set(fullCompetitionName, {
+                            id: competitionId,
+                            matches: [],
+                        });
+                    }
+
+                    // Add match to competition
+                    if (time && cleanMatchText) {
+                        competitions.get(fullCompetitionName)?.matches.push({
+                            time,
+                            match: cleanMatchText,
+                            url: href.startsWith("http")
+                                ? href
+                                : "https://www.sportsmole.co.uk" + href,
+                        });
+                    }
+                });
+
+            // Convert to array and sort matches by time
+            return Array.from(competitions.entries())
+                .filter(([_, data]) => data.matches.length > 0)
+                .map(([section, data]) => ({
+                    section,
+                    matches: data.matches.sort((a, b) =>
+                        a.time.localeCompare(b.time)
+                    ),
+                }));
         });
 
-        return previewLinks;
+        return sections;
     } catch (error) {
         console.error("Error getting preview links:", error);
         return [];
@@ -477,7 +564,7 @@ function parseMatchStatistics(rawStats: string): MatchStats {
         homeOver15: 0,
         awayOver05: 0,
         awayOver15: 0,
-        scoreLines: []
+        scoreLines: [],
     };
 
     try {
@@ -613,8 +700,8 @@ async function createDiscordEmbeds(
                     name: "Home Team",
                     value: preview.teamNews?.home?.length
                         ? preview.teamNews.home
-                            .map((news) => `• ${news}`)
-                            .join("\n")
+                              .map((news) => `• ${news}`)
+                              .join("\n")
                         : "No team news available",
                     inline: true,
                 },
@@ -622,8 +709,8 @@ async function createDiscordEmbeds(
                     name: "Away Team",
                     value: preview.teamNews?.away?.length
                         ? preview.teamNews.away
-                            .map((news) => `• ${news}`)
-                            .join("\n")
+                              .map((news) => `• ${news}`)
+                              .join("\n")
                         : "No team news available",
                     inline: true,
                 },
@@ -753,7 +840,9 @@ function formatMatchProbabilities(stats: string): string {
     }
 }
 
-async function processMatchPreview(preview: MatchPreview): Promise<DiscordMessage> {
+async function processMatchPreview(
+    preview: MatchPreview
+): Promise<DiscordMessage> {
     try {
         let summarizedContent = "";
         let probabilities = "";
@@ -773,7 +862,10 @@ async function processMatchPreview(preview: MatchPreview): Promise<DiscordMessag
     }
 }
 
-export async function scrapeMatchPreview(page: Page, url: string): Promise<MatchPreview | null> {
+export async function scrapeMatchPreview(
+    page: Page,
+    url: string
+): Promise<MatchPreview | null> {
     try {
         console.log("Starting to scrape preview:", url);
 
@@ -789,13 +881,24 @@ export async function scrapeMatchPreview(page: Page, url: string): Promise<Match
                 });
                 success = true;
             } catch (error) {
-                console.log(`Navigation attempt ${retryCount + 1} failed:`, error);
+                console.log(
+                    `Navigation attempt ${retryCount + 1} failed:`,
+                    error
+                );
                 retryCount++;
                 if (retryCount === maxRetries) {
                     throw error;
                 }
-                await new Promise(resolve => setTimeout(resolve, 5000));
+                await new Promise((resolve) => setTimeout(resolve, 5000));
             }
+        }
+
+        try {
+            // Wait for content to load
+            await page.waitForSelector(".article_content", { timeout: 10000 });
+        } catch (error) {
+            console.error("Timeout waiting for article content:", error);
+            return null;
         }
 
         const extractedData = await page.evaluate(() => {
@@ -804,16 +907,88 @@ export async function scrapeMatchPreview(page: Page, url: string): Promise<Match
 
             if (!content) return null;
 
+            // Helper function to extract team news
+            const extractTeamNews = (teamSection: Element | null): string[] => {
+                if (!teamSection) return [];
+                const newsList = Array.from(teamSection.querySelectorAll("li"));
+                return newsList
+                    .map((item) => item.textContent?.trim())
+                    .filter(
+                        (text): text is string =>
+                            text !== undefined && text !== ""
+                    );
+            };
+
+            // Find prediction section
+            const findPrediction = (): string => {
+                const paragraphs = Array.from(content.querySelectorAll("p"));
+                for (const p of paragraphs) {
+                    const text = p.textContent || "";
+                    if (
+                        text
+                            .toLowerCase()
+                            .includes("sports mole's prediction:") ||
+                        text.toLowerCase().includes("we say:")
+                    ) {
+                        return text.trim();
+                    }
+                }
+                return "";
+            };
+
+            // Extract team news sections
+            const homeTeamNews = document.querySelector(".home-team-news");
+            const awayTeamNews = document.querySelector(".away-team-news");
+
+            // Extract form guide
+            const extractFormGuide = (selector: string): string[] => {
+                const forms = Array.from(document.querySelectorAll(selector));
+                return forms
+                    .map((form) => form.textContent?.trim())
+                    .filter(
+                        (text): text is string =>
+                            text !== undefined && text !== ""
+                    );
+            };
+
+            // Extract statistics if available
+            const statsSection = document.querySelector(".match-stats");
+            const statistics = statsSection?.textContent?.trim() || "";
+
+            // Extract overview and key absences with error handling
+            const getTextContent = (selector: string): string => {
+                try {
+                    return (
+                        document.querySelector(selector)?.textContent?.trim() ||
+                        ""
+                    );
+                } catch {
+                    return "";
+                }
+            };
+
             return {
                 title: document.title,
                 homeTeam: titleParts[0] || "",
                 awayTeam: (titleParts[1] || "").split(" - ")[0] || "",
                 content: content.textContent || "",
                 html: content.innerHTML || "",
-                competition: document.querySelector(".competition")?.textContent?.trim() || "",
-                venue: document.querySelector(".venue")?.textContent?.trim() || "",
-                kickoff: document.querySelector(".kickoff")?.textContent?.trim() || "",
-                referee: document.querySelector(".referee")?.textContent?.trim() || "",
+                competition: getTextContent(".competition"),
+                venue: getTextContent(".venue"),
+                kickoff: getTextContent(".kickoff"),
+                referee: getTextContent(".referee"),
+                prediction: findPrediction(),
+                teamNews: {
+                    home: extractTeamNews(homeTeamNews),
+                    away: extractTeamNews(awayTeamNews),
+                },
+                formGuide: {
+                    home: extractFormGuide(".home-team-form .result"),
+                    away: extractFormGuide(".away-team-form .result"),
+                },
+                statistics,
+                overview: getTextContent(".match-overview"),
+                keyAbsences: getTextContent(".key-absences"),
             };
         });
 
@@ -828,28 +1003,22 @@ export async function scrapeMatchPreview(page: Page, url: string): Promise<Match
             awayTeam: extractedData.awayTeam,
             matchSummary: extractedData.content,
             fullArticle: extractedData.html,
-            prediction: "",
-            statistics: "",
+            prediction: extractedData.prediction,
+            statistics: extractedData.statistics,
             probabilities: "",
             competition: extractedData.competition,
             venue: extractedData.venue,
             kickoff: extractedData.kickoff,
             referee: extractedData.referee,
-            overview: "",
-            teamNews: {
-                home: [],
-                away: []
-            },
+            overview: extractedData.overview,
+            keyAbsences: extractedData.keyAbsences,
+            teamNews: extractedData.teamNews,
             lineups: {
                 home: [],
-                away: []
+                away: [],
             },
-            formGuide: {
-                home: [],
-                away: []
-            }
+            formGuide: extractedData.formGuide,
         };
-
     } catch (error) {
         console.error("Error scraping match preview:", error);
         return null;
@@ -860,53 +1029,11 @@ async function initBrowser() {
     const browser = await BrowserService.getInstance();
     const page = await browser.newPage();
 
-    // Set proper headers
+    // Set basic headers
     await page.setExtraHTTPHeaders({
         "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
-        DNT: "1",
-        "Upgrade-Insecure-Requests": "1",
-    });
-
-    // Add route handler to block AMP
-    await page.route("**/*", async (route: Route) => {
-        const url = route.request().url();
-
-        // Block AMP and related resources
-        if (
-            url.includes("cdn.ampproject.org") ||
-            url.includes("/amp/") ||
-            url.includes("amp=1") ||
-            url.includes("amp_latest") ||
-            url.includes("amp-latest")
-        ) {
-            await route.abort();
-            return;
-        }
-
-        // Modify requests to ensure non-AMP versions
-        if (url.includes("sportsmole.co.uk")) {
-            const newUrl = url
-                .replace("/amp/", "/")
-                .replace("?amp=1", "")
-                .replace("&amp=1", "");
-            if (newUrl !== url) {
-                await route.continue({ url: newUrl });
-                return;
-            }
-        }
-
-        await route.continue();
-    });
-
-    // Add console handler for debugging
-    page.on("console", (msg: ConsoleMessage) => {
-        if (msg.text().includes("AMP") || msg.text().includes("amp")) {
-            console.log("❌ AMP detected:", msg.text());
-        }
     });
 
     return page;
@@ -926,104 +1053,103 @@ async function main() {
         });
 
         log.info("Initializing browser...");
-        const browserService = await BrowserService.getInstance();
         const page = await initBrowser();
 
-        // More aggressive AMP blocking
-        log.info("Setting up request blocking...");
-        await page.route("**/*", async (route) => {
-            const url = route.request().url();
-            const resourceType = route.request().resourceType();
-
-            // Log URL being requested (for debugging)
-            log.debug(`Request: ${resourceType} - ${url}`);
-
-            // Block AMP and unnecessary resources
-            if (
-                url.includes("amp") ||
-                url.includes("AMP") ||
-                url.includes("lightning") ||
-                url.includes("google-analytics") ||
-                url.includes("facebook") ||
-                url.includes("prebid") ||
-                url.includes("pixel.gif") ||
-                url.includes("cloudfront.net") ||
-                url.includes("appconsent.io") ||
-                url.includes("wonderpush") ||
-                url.includes("imgix.net")
-            ) {
-                log.debug(`Blocking: ${url}`);
-                await route.abort();
-            } else {
-                await route.continue({
-                    headers: {
-                        ...route.request().headers(),
-                        "User-Agent":
-                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36",
-                        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                        "Sec-CH-UA-Mobile": "?0",
-                        "Sec-CH-UA-Platform": '"Windows"',
-                        DNT: "1",
-                    },
-                });
-            }
-        });
-
+        // Navigate to the previews page
         log.info("Navigating to previews page...");
         await page.goto("https://www.sportsmole.co.uk/football/preview/", {
             waitUntil: "networkidle",
-            timeout: 30000,
+            timeout: 60000,
         });
-
-        // Check if we got AMP version
-        const isAmp = await page.evaluate(() => {
-            return (
-                document.documentElement.hasAttribute("amp") ||
-                document.documentElement.hasAttribute("⚡")
-            );
-        });
-
-        if (isAmp) {
-            log.error("Still getting AMP version despite blocking!");
-            throw new Error("Failed to prevent AMP redirect");
-        }
-
-        log.success("Successfully loaded non-AMP page");
+        log.success("Page loaded");
 
         // Get preview links
-        log.info("Getting preview links...");
-        const previewLinks = await getPreviewLinks(page);
-        log.info(`Found ${previewLinks.length} preview sections`);
+        const sections = await getPreviewLinks(page);
+        log.info(`Found ${sections.length} preview sections`);
 
-        // Process each preview
-        for (const section of previewLinks) {
-            log.section(`Processing section: ${section.section}`);
+        // Format the message
+        const dateString = new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+        });
 
+        let message = `📅 Today's Available Match Previews\n\n${dateString}`;
+
+        // Process each section
+        for (const section of sections) {
+            if (!section.section || section.matches.length === 0) continue;
+
+            // Add competition name and ID
+            message += `\n${section.section} \n`;
+
+            // Add each match
             for (const match of section.matches) {
-                log.info(`Processing match: ${match.match}`);
-                try {
-                    const preview = await scrapeMatchPreview(page, match.url);
-                    if (preview) {
-                        log.success(`Successfully processed ${match.match}`);
-                        await sendToDiscord(preview);
-                    } else {
-                        log.error(`Failed to extract data for ${match.match}`);
-                    }
-                } catch (error) {
-                    log.error(`Error processing ${match.match}: ${error}`);
-                }
+                const cleanTime = match.time
+                    .replace(/EST|BST|GMT/gi, "")
+                    .replace(/\s+/g, " ")
+                    .trim();
+                const cleanMatch = match.match
+                    .replace(/Preview:|prediction, team news, lineups/gi, "")
+                    .replace(/\s+/g, " ")
+                    .trim();
 
-                // Add delay between matches
-                await new Promise((resolve) => setTimeout(resolve, 2000));
+                if (cleanTime && cleanMatch) {
+                    message += `⚽ ${cleanTime}EST ${cleanMatch}\n`;
+                }
             }
         }
 
+        // Split message if it's too long (Discord has a 2000 character limit)
+        const messages = [];
+        while (message.length > 0) {
+            if (message.length <= 2000) {
+                messages.push(message);
+                break;
+            }
+
+            // Find a good breaking point
+            let breakPoint = message.lastIndexOf("\n", 1900);
+            if (breakPoint === -1) breakPoint = 1900;
+
+            messages.push(message.substring(0, breakPoint));
+            message = message.substring(breakPoint + 1);
+
+            // Add header to continuation messages
+            if (message.length > 0) {
+                message = "... (continued)\n\n" + message;
+            }
+        }
+
+        // Send the message(s) to Discord
+        const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+        if (!webhookUrl) {
+            throw new Error(
+                "Discord webhook URL not found in environment variables"
+            );
+        }
+
+        for (const msg of messages) {
+            await axios.post(webhookUrl, {
+                content: msg,
+                username: "Match Preview Bot",
+                avatar_url: "https://i.imgur.com/4M34hi2.png",
+            });
+            // Add a small delay between messages
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+
+        log.success("Successfully sent match previews to Discord");
+
         log.section("Cleanup");
         await page.close();
-        await browserService.close();
         log.success("Process completed successfully");
     } catch (error) {
         log.error("Fatal error in main process:", error);
+        if (error instanceof Error) {
+            log.error("Full error stack:", error.stack);
+        }
     } finally {
         log.info("Script execution finished");
         process.exit(0);
@@ -1038,7 +1164,9 @@ if (require.main === module) {
     });
 }
 
-async function formatMatchPreview(preview: MatchPreview): Promise<DiscordMessage> {
+async function formatMatchPreview(
+    preview: MatchPreview
+): Promise<DiscordMessage> {
     let content = "";
     let probabilities = "";
 
@@ -1076,24 +1204,36 @@ async function formatMatchPreview(preview: MatchPreview): Promise<DiscordMessage
                         value: preview.kickoff || "Unknown",
                         inline: true,
                     },
-                    ...(preview.referee ? [{
-                        name: "Referee",
-                        value: preview.referee,
-                        inline: true,
-                    }] : []),
-                    ...(preview.formGuide?.home?.length ? [{
-                        name: `${preview.homeTeam} Form`,
-                        value: preview.formGuide.home.join(", "),
-                        inline: true,
-                    }] : []),
-                    ...(preview.formGuide?.away?.length ? [{
-                        name: `${preview.awayTeam} Form`,
-                        value: preview.formGuide.away.join(", "),
-                        inline: true,
-                    }] : [])
-                ]
-            }
-        ]
+                    ...(preview.referee
+                        ? [
+                              {
+                                  name: "Referee",
+                                  value: preview.referee,
+                                  inline: true,
+                              },
+                          ]
+                        : []),
+                    ...(preview.formGuide?.home?.length
+                        ? [
+                              {
+                                  name: `${preview.homeTeam} Form`,
+                                  value: preview.formGuide.home.join(", "),
+                                  inline: true,
+                              },
+                          ]
+                        : []),
+                    ...(preview.formGuide?.away?.length
+                        ? [
+                              {
+                                  name: `${preview.awayTeam} Form`,
+                                  value: preview.formGuide.away.join(", "),
+                                  inline: true,
+                              },
+                          ]
+                        : []),
+                ],
+            },
+        ],
     };
 }
 
@@ -1146,7 +1286,7 @@ async function getFormGuide(url: string): Promise<FormData | null> {
 
             return {
                 home: getFormResults(".home-team-form .result"),
-                away: getFormResults(".away-team-form .result")
+                away: getFormResults(".away-team-form .result"),
             } as FormData;
         });
 
@@ -1236,25 +1376,29 @@ interface MatchAnalysisData {
 }
 
 async function createStructuredPreview(preview: MatchPreview): Promise<string> {
-    let content = "";
-    let probabilities = "";
+    const dateString = new Date().toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+    });
 
-    // Get summarized content using Ollama if available
-    if (preview.fullArticle) {
-        content = await summarizeWithOllama(preview.fullArticle);
+    let message = `📅 **Today's Available Match Previews**\n\n${dateString}\n`;
+
+    // Add match details
+    if (preview.competition) {
+        message += `\n**${preview.competition}**\n`;
     }
 
-    // Format probabilities if available
-    if (preview.statistics) {
-        probabilities = formatMatchProbabilities(preview.statistics);
+    message += `⚽ ${preview.kickoff} ${preview.homeTeam} vs ${preview.awayTeam}\n`;
+
+    // Add prediction if available (keep it short)
+    if (preview.prediction) {
+        const predictionText = preview.prediction
+            .replace(/Sports Mole's prediction:|We say:/gi, "")
+            .trim();
+        message += `\n**Prediction:** ${predictionText}\n`;
     }
 
-    // Combine everything into a structured message
-    return `${preview.homeTeam} vs ${preview.awayTeam}
-
-${content}
-
-${probabilities}
-
-${preview.prediction ? `Sports Mole Prediction:\n${preview.prediction}` : ""}`;
+    return message;
 }
