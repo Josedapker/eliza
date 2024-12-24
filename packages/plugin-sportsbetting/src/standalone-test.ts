@@ -1033,9 +1033,9 @@ async function main() {
                 .filter(Boolean);
             message += `\n**${compName.trim()}**${compId ? compId : ""}\n`;
 
-            // Add each match
+            // Add each match with hyperlink
             for (const match of section.matches) {
-                message += `⚽ ${match.time} EST ${match.match}\n`;
+                message += `⚽ ${match.time} EST [${match.match}](${match.url})\n`;
             }
         }
 
