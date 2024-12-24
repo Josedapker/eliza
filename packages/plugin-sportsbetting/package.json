@@ -1,0 +1,28 @@
+{
+  "name": "@ai16z/plugin-sportsbetting",
+  "version": "0.1.0",
+  "description": "Sports betting plugin for Eliza",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "ts-node src/standalone-test.ts"
+  },
+  "dependencies": {
+    "@ai16z/eliza": "workspace:*",
+    "@ghostery/adblocker-playwright": "^2.3.1",
+    "axios": "^1.7.8",
+    "cheerio": "1.0.0-rc.12",
+    "cross-fetch": "^4.0.0",
+    "date-fns": "^2.30.0",
+    "dotenv": "16.4.5",
+    "playwright": "^1.40.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.9",
+    "ts-node": "^10.9.2",
+    "tsup": "^7.2.0",
+    "typescript": "^5.0.0"
+  }
+}
