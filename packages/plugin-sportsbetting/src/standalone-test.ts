@@ -194,143 +194,100 @@ async function navigateWithRetry(
     return false;
 }
 
+// Browser initialization functions
+async function initBrowser() {
+    const browser = BrowserService.getInstance();
+    await browser.initialize();
+    const page = await browser.newPage();
+    return page;
+}
+
+async function navigateToPreviewPage(page: Page): Promise<boolean> {
+    try {
+        await page.goto("https://www.sportsmole.co.uk/football/preview/", {
+            waitUntil: "domcontentloaded",
+            timeout: 30000,
+        });
+
+        // Wait for content to load
+        await page.waitForSelector(".previews", { timeout: 10000 });
+
+        return true;
+    } catch (error) {
+        console.error("Error navigating to preview page:", error);
+        return false;
+    }
+}
+
 async function getPreviewLinks(page: Page): Promise<PreviewSection[]> {
     try {
-        // Wait for the page to load completely
-        await page.waitForLoadState("networkidle");
+        // Wait for the page to load
+        await page.waitForLoadState("domcontentloaded");
 
-        // Now let's specifically look for preview links
+        // Extract matches directly
         const sections = await page.evaluate(() => {
-            // Helper function to clean text (remove HTML and extra whitespace)
-            const cleanText = (text: string): string => {
-                // First remove any HTML tags
-                const withoutHtml = text.replace(/<[^>]*>/g, "");
-                // Then clean up whitespace
-                return withoutHtml.replace(/\s+/g, " ").trim();
-            };
+            const matches = new Map<string, { matches: any[] }>();
 
-            // Helper function to extract competition ID
-            const extractCompetitionId = (href: string): string => {
-                const matches = href.match(/\/(\d+)\//);
-                return matches ? matches[1] : "";
-            };
-
-            // Helper function to extract competition name from URL
-            const getCompetitionFromUrl = (href: string): string => {
-                const urlParts = href.split("/");
-                const competitionPart = urlParts.find((part) => {
-                    const lower = part.toLowerCase();
-                    return (
-                        lower.includes("serie-") ||
-                        lower.includes("league-") ||
-                        lower.includes("primeira-liga") ||
-                        lower.includes("cup") ||
-                        lower.includes("championship")
-                    );
-                });
-
-                if (!competitionPart) return "";
-
-                // Format competition name
-                return competitionPart
-                    .split("-")
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")
-                    .replace(/-/g, " ");
-            };
-
-            // Find all competition sections
-            const competitions = new Map<
-                string,
-                {
-                    id: string;
-                    matches: Array<{
-                        time: string;
-                        match: string;
-                        url: string;
-                    }>;
-                }
-            >();
-
-            // Process each match preview link
+            // Find all competition headers
             document
-                .querySelectorAll('a[href*="/preview/"]')
-                .forEach((link) => {
-                    const href = link.getAttribute("href") || "";
-                    const matchText = cleanText(link.textContent || "");
+                .querySelectorAll(".l_s_blocks_header")
+                .forEach((header) => {
+                    const competitionText =
+                        header.textContent?.split("[")[0].trim() || "";
+                    if (!competitionText) return;
 
-                    // Skip if not a valid match preview
-                    if (
-                        !href.includes("prediction-team-news-lineups") ||
-                        !matchText.includes("vs")
+                    // Get all matches under this competition
+                    let currentElement = header.nextElementSibling;
+                    while (
+                        currentElement &&
+                        !currentElement.matches(".l_s_blocks_header")
                     ) {
-                        return;
-                    }
+                        // Skip date headers
+                        if (currentElement.classList.contains("day")) {
+                            currentElement = currentElement.nextElementSibling;
+                            continue;
+                        }
 
-                    // Get competition name and ID
-                    const competitionName = getCompetitionFromUrl(href);
-                    const competitionId = extractCompetitionId(href);
-                    const fullCompetitionName = competitionName
-                        ? `${competitionName}${competitionId}`
-                        : "";
+                        // Process match links
+                        if (currentElement.tagName === "A") {
+                            const timeSpan =
+                                currentElement.querySelector(".time");
+                            const titleSpan =
+                                currentElement.querySelector(".title");
 
-                    // Find match time from previous sibling
-                    const timeElement = link.previousElementSibling;
-                    let time = cleanText(timeElement?.textContent || "");
+                            if (timeSpan && titleSpan) {
+                                const time = timeSpan.textContent?.trim() || "";
+                                const match =
+                                    titleSpan.textContent?.trim() || "";
+                                const url =
+                                    currentElement.getAttribute("href") || "";
 
-                    // Skip invalid entries
-                    if (
-                        time.toLowerCase().includes("preview") ||
-                        time.toLowerCase().includes("stories") ||
-                        time.toLowerCase().includes("trending") ||
-                        time.toLowerCase().includes("latest")
-                    ) {
-                        return;
-                    }
+                                if (time && match) {
+                                    if (!matches.has(competitionText)) {
+                                        matches.set(competitionText, {
+                                            matches: [],
+                                        });
+                                    }
 
-                    // Clean up match text
-                    const cleanMatchText = matchText
-                        .replace(
-                            /Preview:|prediction, team news, lineups/gi,
-                            ""
-                        )
-                        .replace(/\s+/g, " ")
-                        .trim()
-                        .replace(/ vs /g, " vs. ");
+                                    matches.get(competitionText)?.matches.push({
+                                        time,
+                                        match,
+                                        url: url.startsWith("http")
+                                            ? url
+                                            : `https://www.sportsmole.co.uk${url}`,
+                                    });
+                                }
+                            }
+                        }
 
-                    // Skip if we don't have valid data
-                    if (!cleanMatchText || cleanMatchText === "-") return;
-
-                    // Create competition entry if it doesn't exist
-                    const sectionKey = fullCompetitionName || "Unknown";
-                    if (!competitions.has(sectionKey)) {
-                        competitions.set(sectionKey, {
-                            id: competitionId,
-                            matches: [],
-                        });
-                    }
-
-                    // Add match to competition
-                    if (time && cleanMatchText) {
-                        competitions.get(sectionKey)?.matches.push({
-                            time,
-                            match: cleanMatchText,
-                            url: href.startsWith("http")
-                                ? href
-                                : "https://www.sportsmole.co.uk" + href,
-                        });
+                        currentElement = currentElement.nextElementSibling;
                     }
                 });
 
-            // Convert to array and sort matches by time
-            return Array.from(competitions.entries())
-                .filter(([_, data]) => data.matches.length > 0)
-                .map(([section, data]) => ({
-                    section,
-                    matches: data.matches.sort((a, b) =>
-                        a.time.localeCompare(b.time)
-                    ),
-                }));
+            return Array.from(matches.entries()).map(([section, data]) => ({
+                section,
+                matches: data.matches,
+            }));
         });
 
         return sections;
@@ -1028,20 +985,6 @@ export async function scrapeMatchPreview(
     }
 }
 
-async function initBrowser() {
-    const browser = await BrowserService.getInstance();
-    const page = await browser.newPage();
-
-    // Set basic headers
-    await page.setExtraHTTPHeaders({
-        "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    });
-
-    return page;
-}
-
 async function main() {
     try {
         log.section("Starting main process...");
@@ -1078,117 +1021,43 @@ async function main() {
             year: "numeric",
         });
 
-        let message = `📅 Today's Available Match Previews\n\n${dateString}`;
+        let message = `📅 **Today's Available Match Previews**\n\n${dateString}\n`;
 
         // Process each section
         for (const section of sections) {
-            if (!section.section || section.matches.length === 0) continue;
+            log.section(`Processing section: ${section.section}`);
 
-            // Skip sections that are not actual competitions
-            if (
-                section.section.toLowerCase().includes("heading") ||
-                section.section.toLowerCase().includes("latest") ||
-                section.section.toLowerCase().includes("trending")
-            ) {
-                continue;
-            }
+            // Extract competition name and ID
+            const [compName, compId] = section.section
+                .split(/(\d+)/)
+                .filter(Boolean);
+            message += `\n**${compName.trim()}**${compId ? compId : ""}\n`;
 
-            // Add competition name and ID
-            message += `\n${section.section}\n`;
-
-            // Group matches by time
-            const matchesByTime = new Map<
-                string,
-                { match: string; url: string }[]
-            >();
+            // Add each match
             for (const match of section.matches) {
-                const cleanTime = match.time
-                    .replace(/EST|BST|GMT/gi, "")
-                    .replace(/\s+/g, " ")
-                    .trim();
-
-                // Skip invalid matches or headlines
-                if (
-                    !cleanTime ||
-                    cleanTime.toLowerCase().includes("heading") ||
-                    cleanTime.toLowerCase().includes("latest") ||
-                    cleanTime.toLowerCase().includes("trending")
-                ) {
-                    continue;
-                }
-
-                if (!matchesByTime.has(cleanTime)) {
-                    matchesByTime.set(cleanTime, []);
-                }
-
-                const cleanMatch = match.match
-                    .replace(/Preview:|prediction, team news, lineups/gi, "")
-                    .replace(/\s+/g, " ")
-                    .trim();
-
-                if (cleanMatch && !cleanMatch.includes("revelation")) {
-                    matchesByTime.get(cleanTime)?.push({
-                        match: cleanMatch,
-                        url: match.url,
-                    });
-                }
-            }
-
-            // Add matches grouped by time
-            for (const [time, matches] of matchesByTime) {
-                if (matches.length === 1) {
-                    // Single match at this time
-                    message += `⚽ ${time}EST [${matches[0].match}](${matches[0].url})\n`;
-                } else {
-                    // Multiple matches at this time
-                    const matchStrings = matches
-                        .map((m) => `[${m.match}](${m.url})`)
-                        .join(" | ");
-                    message += `⚽ ${time}EST ${matchStrings}\n`;
-                }
+                message += `⚽ ${match.time} EST ${match.match}\n`;
             }
         }
 
-        // Split message if it's too long (Discord has a 2000 character limit)
-        const messages = [];
-        while (message.length > 0) {
-            if (message.length <= 2000) {
-                messages.push(message);
-                break;
+        // Send the formatted message to Discord
+        if (sections.length > 0) {
+            const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+            if (!webhookUrl) {
+                throw new Error(
+                    "Discord webhook URL not found in environment variables"
+                );
             }
 
-            // Find a good breaking point
-            let breakPoint = message.lastIndexOf("\n", 1900);
-            if (breakPoint === -1) breakPoint = 1900;
-
-            messages.push(message.substring(0, breakPoint));
-            message = message.substring(breakPoint + 1);
-
-            // Add header to continuation messages
-            if (message.length > 0) {
-                message = "... (continued)\n\n" + message;
-            }
-        }
-
-        // Send the message(s) to Discord
-        const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-        if (!webhookUrl) {
-            throw new Error(
-                "Discord webhook URL not found in environment variables"
-            );
-        }
-
-        for (const msg of messages) {
             await axios.post(webhookUrl, {
-                content: msg,
+                content: message,
                 username: "Match Preview Bot",
                 avatar_url: "https://i.imgur.com/4M34hi2.png",
             });
-            // Add a small delay between messages
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
 
-        log.success("Successfully sent match previews to Discord");
+            log.success("Successfully sent match previews to Discord");
+        } else {
+            log.info("No match previews found to send");
+        }
 
         log.section("Cleanup");
         await page.close();
@@ -1431,21 +1300,29 @@ async function createStructuredPreview(preview: MatchPreview): Promise<string> {
         year: "numeric",
     });
 
-    let message = `📅 **Today's Available Match Previews**\n\n${dateString}\n`;
+    let message = `📅 **Today's Available Match Previews**\n\n${dateString}\n\n`;
 
     // Add match details
     if (preview.competition) {
-        message += `\n**${preview.competition}**\n`;
+        message += `**${preview.competition}**\n`;
     }
 
-    message += `⚽ ${preview.kickoff} ${preview.homeTeam} vs ${preview.awayTeam}\n`;
+    message += `⚽ ${preview.kickoff} EST ${preview.homeTeam} vs ${preview.awayTeam}\n`;
 
-    // Add prediction if available (keep it short)
+    // Add team news if available
+    if (preview.teamNews?.home?.length || preview.teamNews?.away?.length) {
+        message += "\n**Team News:**\n";
+        if (preview.teamNews?.home?.length) {
+            message += `${preview.homeTeam}:\n${preview.teamNews.home.map((news) => `• ${news}`).join("\n")}\n\n`;
+        }
+        if (preview.teamNews?.away?.length) {
+            message += `${preview.awayTeam}:\n${preview.teamNews.away.map((news) => `• ${news}`).join("\n")}\n`;
+        }
+    }
+
+    // Add prediction if available
     if (preview.prediction) {
-        const predictionText = preview.prediction
-            .replace(/Sports Mole's prediction:|We say:/gi, "")
-            .trim();
-        message += `\n**Prediction:** ${predictionText}\n`;
+        message += `\n**Prediction:**\n${preview.prediction}\n`;
     }
 
     return message;
