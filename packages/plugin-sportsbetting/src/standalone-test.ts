@@ -1036,9 +1036,8 @@ async function main() {
 
             // Add each match with hyperlink and prevent preview
             for (const match of section.matches) {
-                // Use Discord's no-embed URL format
-                const noPreviewUrl = `<${match.url}>`;
-                message += `⚽ ${match.time} EST ${match.match} ${noPreviewUrl}\n`;
+                // Use Discord's markdown link format with no-embed URL wrapper
+                message += `⚽ ${match.time} EST [${match.match}](<${match.url}>)\n`;
             }
         }
 
