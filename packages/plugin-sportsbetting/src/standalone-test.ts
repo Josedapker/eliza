@@ -6,8 +6,20 @@ import { ConsoleMessage, Page, Route } from "playwright";
 
 import { DiscordBot } from "./discord-bot";
 import { BrowserService } from "./services/browser";
+import { MatchPreview, PreviewSection, PreviewMatch } from './types';
 
-// Interfaces
+// Additional interfaces
+interface CacheEntry {
+    data: MatchPreview | null;
+    timestamp: number;
+}
+
+interface FormResult {
+    opponent: string;
+    result: string;
+    score: string;
+}
+
 interface MatchStats {
     possession: {
         home: string;
@@ -52,59 +64,6 @@ interface MatchStats {
     }>;
 }
 
-interface MatchPreview {
-    title: string;
-    homeTeam: string;
-    awayTeam: string;
-    content: string;
-    html: string;
-    competition: string;
-    venue: string;
-    kickoff: string;
-    referee: string;
-    prediction: string;
-    url: string;
-    overview?: string;
-    fullArticle?: string;
-    keyAbsences?: string;
-    matchSummary?: string;
-    teamNews?: {
-        home?: string[];
-        away?: string[];
-    };
-    statistics?: string;
-    homeForm?: string[];
-    awayForm?: string[];
-    headToHead?: string[];
-    lineups?: {
-        home?: string[];
-        away?: string[];
-    };
-}
-
-interface PreviewSection {
-    section: string;
-    matches: PreviewMatch[];
-}
-
-interface PreviewMatch {
-    time: string;
-    match: string;
-    url: string;
-}
-
-interface ExtractedData {
-    title: string;
-    homeTeam: string;
-    awayTeam: string;
-    content: string;
-    html: string;
-    competition: string;
-    venue: string;
-    kickoff: string;
-    referee: string;
-}
-
 interface DiscordEmbed {
     title: string;
     description?: string;
@@ -135,36 +94,9 @@ interface DiscordMessage {
     embeds: DiscordEmbed[];
 }
 
-interface CacheEntry {
-    data: MatchPreview | null;
-    timestamp: number;
-}
-
 interface FormData {
     home: string[];
     away: string[];
-}
-
-interface FormResult {
-    opponent: string;
-    result: string;
-    score: string;
-}
-
-interface FormattedMatchData {
-    matchInfo: {
-        homeTeam: string;
-        awayTeam: string;
-        date: string;
-        venue: string;
-        competition: string;
-    };
-    teamNews: {
-        home: string[];
-        away: string[];
-    };
-    statistics: MatchStats;
-    prediction: string;
 }
 
 interface MatchAnalysisData {
@@ -841,11 +773,10 @@ async function processMatchPreview(preview: MatchPreview): Promise<DiscordMessag
     }
 }
 
-async function scrapeMatchPreview(page: Page, url: string): Promise<MatchPreview | null> {
+export async function scrapeMatchPreview(page: Page, url: string): Promise<MatchPreview | null> {
     try {
         console.log("Starting to scrape preview:", url);
 
-        // Add more resilient navigation with retries
         const maxRetries = 3;
         let retryCount = 0;
         let success = false;
@@ -867,7 +798,6 @@ async function scrapeMatchPreview(page: Page, url: string): Promise<MatchPreview
             }
         }
 
-        // Extract the content
         const extractedData = await page.evaluate(() => {
             const titleParts = document.title.split(" - ")[0].split(" vs. ");
             const content = document.querySelector(".article_content");
@@ -893,18 +823,28 @@ async function scrapeMatchPreview(page: Page, url: string): Promise<MatchPreview
         }
 
         return {
-            ...extractedData,
-            prediction: "",
             url,
+            homeTeam: extractedData.homeTeam,
+            awayTeam: extractedData.awayTeam,
+            matchSummary: extractedData.content,
+            fullArticle: extractedData.html,
+            prediction: "",
+            statistics: "",
+            probabilities: "",
+            competition: extractedData.competition,
+            venue: extractedData.venue,
+            kickoff: extractedData.kickoff,
+            referee: extractedData.referee,
             overview: "",
-            homeForm: [],
-            awayForm: [],
-            headToHead: [],
             teamNews: {
                 home: [],
                 away: []
             },
             lineups: {
+                home: [],
+                away: []
+            },
+            formGuide: {
                 home: [],
                 away: []
             }
@@ -1112,15 +1052,46 @@ async function formatMatchPreview(preview: MatchPreview): Promise<DiscordMessage
         probabilities = formatMatchProbabilities(preview.statistics);
     }
 
-    // Combine everything into a structured message
+    // Create the embed
     return {
         embeds: [
             {
                 title: `${preview.homeTeam} vs ${preview.awayTeam}`,
-                description: preview.keyAbsences || preview.matchSummary || preview.content,
+                description: preview.keyAbsences || preview.matchSummary || "",
                 color: 0x3498db,
                 url: preview.url,
-                fields: []
+                fields: [
+                    {
+                        name: "Competition",
+                        value: preview.competition || "Unknown",
+                        inline: true,
+                    },
+                    {
+                        name: "Venue",
+                        value: preview.venue || "Unknown",
+                        inline: true,
+                    },
+                    {
+                        name: "Kickoff",
+                        value: preview.kickoff || "Unknown",
+                        inline: true,
+                    },
+                    ...(preview.referee ? [{
+                        name: "Referee",
+                        value: preview.referee,
+                        inline: true,
+                    }] : []),
+                    ...(preview.formGuide?.home?.length ? [{
+                        name: `${preview.homeTeam} Form`,
+                        value: preview.formGuide.home.join(", "),
+                        inline: true,
+                    }] : []),
+                    ...(preview.formGuide?.away?.length ? [{
+                        name: `${preview.awayTeam} Form`,
+                        value: preview.formGuide.away.join(", "),
+                        inline: true,
+                    }] : [])
+                ]
             }
         ]
     };
@@ -1175,8 +1146,8 @@ async function getFormGuide(url: string): Promise<FormData | null> {
 
             return {
                 home: getFormResults(".home-team-form .result"),
-                away: getFormResults(".away-team-form .result"),
-            };
+                away: getFormResults(".away-team-form .result")
+            } as FormData;
         });
 
         return formData;

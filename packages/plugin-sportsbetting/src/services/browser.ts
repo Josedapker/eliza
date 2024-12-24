@@ -6,8 +6,35 @@ import {
 } from 'playwright';
 
 import { PlaywrightBlocker } from '@ghostery/adblocker-playwright';
+import { RequestType, Request } from '@ghostery/adblocker';
 
 import { Cache } from '../utils/cache';
+
+// Map Playwright resource types to Adblocker RequestType
+function mapResourceType(type: string): RequestType {
+    switch (type) {
+        case 'document':
+            return 'document';
+        case 'stylesheet':
+            return 'stylesheet';
+        case 'image':
+            return 'image';
+        case 'media':
+            return 'media';
+        case 'font':
+            return 'font';
+        case 'script':
+            return 'script';
+        case 'xhr':
+        case 'fetch':
+            return 'xhr';
+        case 'websocket':
+            return 'websocket';
+        case 'other':
+        default:
+            return 'other';
+    }
+}
 
 export class BrowserService {
     private static instance: BrowserService;
@@ -88,10 +115,17 @@ export class BrowserService {
                 await this.blocker.enableBlockingInPage(page);
                 await page.route('**/*', async (route) => {
                     const request = route.request();
-                    if (this.blocker && await this.blocker.shouldBlock(request.url(), {
-                        sourceUrl: request.frame()?.url(),
-                        requestType: request.resourceType(),
-                    })) {
+                    const frameUrl = request.frame()?.url() || '';
+                    const sourceUrl = new URL(frameUrl);
+                    
+                    if (this.blocker && await this.blocker.match(
+                        Request.fromRawDetails({
+                            type: mapResourceType(request.resourceType()),
+                            url: request.url(),
+                            sourceUrl: frameUrl,
+                            sourceDomain: sourceUrl.hostname,
+                        })
+                    )) {
                         await route.abort();
                     } else {
                         await route.continue();
