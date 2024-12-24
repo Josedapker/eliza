@@ -5,15 +5,11 @@ import {
     EmbedBuilder,
     GatewayIntentBits,
     TextChannel,
-} from 'discord.js';
+} from "discord.js";
 
-import { BrowserService } from './services/browser';
-import { scrapeMatchPreview } from './standalone-test';
-import {
-    MatchPreview,
-    PreviewMatch,
-    PreviewSection,
-} from './types';
+import { BrowserService } from "./services/browser";
+import { scrapeMatchPreview } from "./standalone-test";
+import { MatchPreview, PreviewMatch, PreviewSection } from "./types";
 
 export class DiscordBot {
     public client: Client;
@@ -32,6 +28,17 @@ export class DiscordBot {
         });
 
         this.setupEventHandlers();
+
+        // Set bot username to Liga when ready
+        this.client.once("ready", async () => {
+            try {
+                await this.client.user?.setUsername("Liga");
+                console.log(`Bot logged in as ${this.client.user?.tag}`);
+            } catch (error) {
+                console.error("Failed to set username:", error);
+            }
+        });
+
         this.client.login(token);
     }
 
@@ -151,120 +158,159 @@ export class DiscordBot {
     public async sendMatchOverview(
         sections: PreviewSection[],
         previews: Map<string, MatchPreview>
-    ) {
+    ): Promise<void> {
         try {
+            console.log("\n=== Starting Discord Message Process ===");
+
             const channelId = process.env.DISCORD_CHANNEL_ID;
             if (!channelId) {
-                console.error("No channel ID provided");
+                console.error(
+                    "❌ No Discord channel ID provided in environment variables"
+                );
                 return;
             }
-
-            // Hard-coded example date to match your screenshots.
-            // You can replace this with a dynamic date library if you prefer.
-            const dateString = "Sunday, December 22, 2024";
+            console.log("✓ Found channel ID:", channelId);
 
             const channel = await this.getChannel(channelId);
             if (!channel) {
-                console.error("Could not find channel");
+                console.error("❌ Could not find Discord channel");
                 return;
             }
+            console.log("✓ Successfully connected to Discord channel");
 
-            console.log('Received sections:', JSON.stringify(sections, null, 2));
-            console.log('Received previews:', Array.from(previews.entries()));
-
-            // Build the summary content with the desired heading and date
-            const summaryContent =
-                `**Today's Available Match Previews**\n\n${dateString}\n\n` +
-                sections
-                    .map(section => {
-                        console.log(`Processing section: ${section.section}`);
-                        console.log(`Matches in section:`, section.matches);
-
-                        return `**${section.section}**\n` +
-                            section.matches.map(match => {
-                                console.log(`Processing match:`, match);
-                                // Format each match line with a soccer-ball icon and "EST" after the time
-                                return `⚽ ${match.time} EST ${match.match}`;
-                            }).join('\n');
-                    })
-                    .join('\n\n');
-
-            console.log('Final summary content:', summaryContent);
-
-            // Send the main "today's previews" message
-            const summaryMessage = await channel.send({
-                content: summaryContent
+            // Build the main message content
+            console.log("\n--- Building Main Message ---");
+            const dateString = new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+                year: "numeric",
             });
 
-            // Process each match in parallel
-            const threadPromises = sections.flatMap(section =>
-                section.matches.map(async (match, index) => {
-                    try {
-                        console.log(`Creating thread for match: ${match.match}`);
-                        // Create a thread for this match
-                        const thread = await summaryMessage.startThread({
-                            name: match.match,
-                            autoArchiveDuration: 1440 // Archive after 24 hours
-                        });
+            let mainContent = `**Today's Match Previews**\n\n${dateString}\n\n`;
+            console.log("✓ Added date:", dateString);
 
-                        const preview = previews.get(`${section.section}_${index}`);
-                        console.log(`Preview data for ${match.match}:`, preview);
+            // Add each competition and its matches
+            for (const section of sections) {
+                console.log(`\nProcessing section: ${section.section}`);
+                mainContent += `**${section.section}**\n`;
+                for (const match of section.matches) {
+                    console.log(
+                        `- Adding match: ${match.match} at ${match.time}`
+                    );
+                    mainContent += `⚽ ${match.time} ${match.match}\n`;
+                }
+                mainContent += "\n";
+            }
+
+            // Send the main message
+            console.log("\n--- Sending Main Message ---");
+            const mainMessage = await channel.send({
+                content: mainContent.trim(),
+            });
+            console.log("✓ Main message sent successfully");
+
+            // Create threads for each competition section
+            console.log("\n=== Creating Competition Threads ===");
+            for (const section of sections) {
+                try {
+                    console.log(`\n--- Processing ${section.section} ---`);
+
+                    // Create thread for this competition
+                    console.log(`Creating thread for: ${section.section}`);
+                    const thread = await mainMessage.startThread({
+                        name: `${section.section} Previews`,
+                        autoArchiveDuration: 1440, // 24 hours
+                    });
+                    console.log("✓ Thread created successfully");
+
+                    // Process each match in the section
+                    for (const match of section.matches) {
+                        console.log(`\nProcessing match: ${match.match}`);
+                        const preview = previews.get(
+                            `${section.section}_${match.match}`
+                        );
 
                         if (!preview) {
-                            await thread.send("Preview data not available for this match.");
-                            return;
+                            console.log(
+                                `❌ No preview found for ${match.match}`
+                            );
+                            continue;
+                        }
+                        console.log("✓ Found preview data");
+
+                        // Send the match image if available
+                        if (preview.imageUrl) {
+                            console.log("Sending match image");
+                            await thread.send({ files: [preview.imageUrl] });
+                            console.log("✓ Image sent");
                         }
 
-                        // Send match context
-                        const contextMessage = [
-                            "**📊 Match Context**",
-                            preview.competition ? `• Competition: ${preview.competition}` : null,
-                            preview.venue ? `• Venue: ${preview.venue}` : null,
-                            preview.matchSummary ? `• Context: ${preview.matchSummary}` : null
-                        ].filter(Boolean).join('\n');
-                        await thread.send(contextMessage);
-
-                        // Send key information
-                        if (preview.keyAbsences || preview.overview) {
-                            const keyInfoMessage = [
-                                "**ℹ️ Key Information**",
-                                preview.keyAbsences ? `• ${preview.keyAbsences}` : null,
-                                preview.overview ? `• ${preview.overview}` : null
-                            ].filter(Boolean).join('\n');
-                            await thread.send(keyInfoMessage);
-                        }
-
-                        // Send team news
-                        const teamNewsMessage = [
-                            "**👥 Team News**",
-                            `**${preview.homeTeam}:**`,
+                        // Format match overview
+                        console.log("Formatting match content");
+                        let matchContent = [
+                            `**${preview.homeTeam} vs ${preview.awayTeam}**\n`,
+                            preview.competition
+                                ? `**Competition**: ${preview.competition}`
+                                : null,
+                            preview.venue
+                                ? `**Venue**: ${preview.venue}`
+                                : null,
+                            preview.kickoff
+                                ? `**Kickoff**: ${preview.kickoff}`
+                                : null,
+                            "",
+                            "**Match Context**",
+                            preview.matchSummary ||
+                                "No match context available",
+                            "",
+                            preview.keyAbsences
+                                ? `**Key Absences**\n${preview.keyAbsences}`
+                                : null,
+                            "",
+                            "**Team News**",
+                            `**${preview.homeTeam}**:`,
                             preview.teamNews?.home?.length
-                                ? preview.teamNews.home.map(news => `• ${news}`).join('\n')
+                                ? preview.teamNews.home
+                                      .map((news) => `• ${news}`)
+                                      .join("\n")
                                 : "No team news available",
                             "",
-                            `**${preview.awayTeam}:**`,
+                            `**${preview.awayTeam}**:`,
                             preview.teamNews?.away?.length
-                                ? preview.teamNews.away.map(news => `• ${news}`).join('\n')
-                                : "No team news available"
-                        ].join('\n');
-                        await thread.send(teamNewsMessage);
+                                ? preview.teamNews.away
+                                      .map((news) => `• ${news}`)
+                                      .join("\n")
+                                : "No team news available",
+                            "",
+                            preview.prediction
+                                ? "**Sports Mole Prediction**"
+                                : null,
+                            preview.prediction || null,
+                            "",
+                            preview.dataAnalysisUrl
+                                ? `[Click here for detailed match analysis](${preview.dataAnalysisUrl})`
+                                : null,
+                        ]
+                            .filter(Boolean)
+                            .join("\n");
 
-                        // Send prediction
-                        if (preview.prediction) {
-                            await thread.send(`**🎯 Prediction**\n${preview.prediction}`);
-                        }
-
-                    } catch (error) {
-                        console.error(`Error creating thread for match ${match.match}:`, error);
+                        // Send the match details
+                        console.log("Sending match details to thread");
+                        await thread.send(matchContent);
+                        console.log("✓ Match details sent successfully");
                     }
-                })
-            );
+                } catch (error) {
+                    console.error(
+                        `❌ Error creating thread for ${section.section}:`,
+                        error
+                    );
+                }
+            }
 
-            // Wait for all threads to be created and populated
-            await Promise.allSettled(threadPromises);
-
+            console.log("\n=== Discord Message Process Complete ===\n");
         } catch (error) {
-            console.error("Error in sendMatchOverview:", error);
+            console.error("❌ Error in sendMatchOverview:", error);
         }
     }
 

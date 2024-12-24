@@ -14,40 +14,29 @@ export interface MatchPreview {
     homeTeam: string;
     awayTeam: string;
     matchSummary: string;
-    keyAbsences?: string;
-    teamNews?: {
-        home: string[];
-        away: string[];
-    };
+    fullArticle: string;
     prediction: string;
     statistics: string;
     probabilities: string;
-    formGuide?: {
+    competition: string;
+    venue: string;
+    kickoff: string;
+    referee: string;
+    overview: string;
+    keyAbsences: string;
+    teamNews: {
         home: string[];
         away: string[];
     };
-    fullArticle: string;
-    lineups?: {
+    lineups: {
         home: string[];
         away: string[];
     };
-    overview?: string;
-    homeDetails?: string;
-    awayDetails?: string;
-    scoreAnalysis?: string;
-    imageUrl?: string;
-    thumbnailUrl?: string;
-    analysis?: string;
-    homeScore?: string;
-    awayScore?: string;
-    date?: string;
-    kickoff?: string;
-    dataAnalysisUrl?: string;
-    previewImage?: string;
-    competition?: string;
-    venue?: string;
-    referee?: string;
-    homeForm?: string[];
-    awayForm?: string[];
-    headToHead?: string[];
+    formGuide: {
+        home: string[];
+        away: string[];
+    };
+    dataAnalysisUrl: string;
+    imageUrl: string;
+    tacticalInfo: string;
 }

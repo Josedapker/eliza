@@ -1,4 +1,3 @@
-import axios from "axios";
 import * as dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
@@ -298,7 +297,7 @@ async function getPreviewLinks(page: Page): Promise<PreviewSection[]> {
 }
 
 async function scrapeChampionshipPreviews(): Promise<void> {
-    const browser = await BrowserService.getInstance();
+    const browser = BrowserService.getInstance();
     const page = await browser.newPage();
 
     try {
@@ -407,7 +406,81 @@ async function scrapeChampionshipPreviews(): Promise<void> {
                 );
 
                 if (isChampionshipMatch) {
-                    await sendToDiscord(preview);
+                    // Get Discord channel
+                    const channelId = process.env.DISCORD_CHANNEL_ID;
+                    if (!channelId) {
+                        console.error(
+                            "❌ DISCORD_CHANNEL_ID not set in environment variables"
+                        );
+                        return;
+                    }
+
+                    const channel = await bot.getChannel(channelId);
+                    if (!channel) {
+                        console.error("Could not find Discord channel");
+                        return;
+                    }
+
+                    // Send the preview message
+                    const threadMessage = await channel.send({
+                        content: `**Championship** Preview`,
+                        flags: ["SuppressEmbeds"],
+                    });
+
+                    const thread = await threadMessage.startThread({
+                        name: "Championship Preview",
+                        autoArchiveDuration: 1440,
+                    });
+
+                    // Format and send the match content
+                    let matchContent = `Sports Mole\n[Preview: ${preview.homeTeam} vs. ${preview.awayTeam} - prediction, team news](${previewLink})\n\n`;
+                    matchContent += `Sports Mole previews Championship clash between ${preview.homeTeam} and ${preview.awayTeam}\n\n`;
+
+                    // Add match details
+                    const details = [
+                        preview.venue ? `🏟️ **Venue**: ${preview.venue}` : null,
+                        preview.kickoff
+                            ? `⏰ **Kickoff**: ${preview.kickoff}`
+                            : null,
+                        preview.referee
+                            ? `👨‍⚖️ **Referee**: ${preview.referee}`
+                            : null,
+                    ]
+                        .filter(Boolean)
+                        .join("\n");
+
+                    if (details) {
+                        matchContent += `${details}\n\n`;
+                    }
+
+                    // Add match overview
+                    if (preview.overview) {
+                        matchContent += `📝 **Match Overview**\n${preview.overview}\n\n`;
+                    }
+
+                    // Add team news
+                    matchContent += "👥 **Team News**\n";
+                    matchContent += `${preview.homeTeam}:\n${preview.teamNews?.home?.length ? preview.teamNews.home.map((news) => `• ${news}`).join("\n") : "No team news available"}\n\n`;
+                    matchContent += `${preview.awayTeam}:\n${preview.teamNews?.away?.length ? preview.teamNews.away.map((news) => `• ${news}`).join("\n") : "No team news available"}\n\n`;
+
+                    // Add prediction if available
+                    if (preview.prediction) {
+                        matchContent += `🎯 **Prediction**\n${preview.prediction}\n\n`;
+                    }
+
+                    // Add data analysis link if available
+                    if (preview.dataAnalysisUrl) {
+                        matchContent += `[View Detailed Match Analysis](${preview.dataAnalysisUrl})\n`;
+                    }
+
+                    // Split and send the match content
+                    const chunks = splitMessage(matchContent);
+                    for (const chunk of chunks) {
+                        await thread.send({
+                            content: chunk,
+                            flags: ["SuppressEmbeds"],
+                        });
+                    }
                 }
             }
         } catch (error) {
@@ -429,7 +502,7 @@ async function getAnalysis(url: string): Promise<string | null> {
         const analysisUrl = `${url}/analysis`;
         console.log("Analysis URL:", analysisUrl);
 
-        console.log("🔄 Navigating to analysis page...");
+        console.log(" Navigating to analysis page...");
         await navigateWithRetry(page, analysisUrl);
         console.log("✅ Navigation successful");
 
@@ -470,7 +543,7 @@ function parseFormGuide(form: string[]): FormResult[] {
 function formatFormGuide(team: string, form: string[]): string {
     const results = parseFormGuide(form);
     const formattedResults = results.map(({ score, opponent, result }) => {
-        const emoji = result === "W" ? "✅" : result === "L" ? "���" : "⚪";
+        const emoji = result === "W" ? "" : result === "L" ? "" : "⚪";
         return `${emoji} ${score}-${opponent} (${result})`;
     });
 
@@ -479,11 +552,11 @@ function formatFormGuide(team: string, form: string[]): string {
 
 // Fix the log interface at the top of the file
 const log = {
-    info: (msg: string, ...args: any[]) => console.log(`ℹ️  ${msg}`, ...args),
+    info: (msg: string, ...args: any[]) => console.log(`��️  ${msg}`, ...args),
     success: (msg: string, ...args: any[]) => console.log(`✅ ${msg}`, ...args),
     error: (msg: string, ...args: any[]) => console.error(`❌ ${msg}`, ...args),
     warning: (msg: string, ...args: any[]) =>
-        console.log(`⚠️  ${msg}`, ...args),
+        console.log(`��️  ${msg}`, ...args),
     section: (msg: string, ...args: any[]) =>
         console.log(`\n📌 ${msg}\n`, ...args),
     debug: (msg: string, ...args: any[]) =>
@@ -580,16 +653,16 @@ function createStatsEmbed(stats: MatchStats): DiscordEmbed[] {
                 {
                     name: "Match Outcome",
                     value: [
-                        `��� Home Win: ${stats.homeWinProbability.toFixed(1)}% (${stats.trend > 0 ? "+" : ""}${stats.trend.toFixed(2)})`,
+                        ` Home Win: ${stats.homeWinProbability.toFixed(1)}% (${stats.trend > 0 ? "+" : ""}${stats.trend.toFixed(2)})`,
                         `🤝 Draw: ${stats.drawProbability.toFixed(1)}% (${stats.drawTrend > 0 ? "+" : ""}${stats.drawTrend.toFixed(2)})`,
-                        `✈️ Away Win: ${stats.awayWinProbability.toFixed(1)}% (${stats.awayTrend > 0 ? "+" : ""}${stats.awayTrend.toFixed(2)})`,
+                        `️ Away Win: ${stats.awayWinProbability.toFixed(1)}% (${stats.awayTrend > 0 ? "+" : ""}${stats.awayTrend.toFixed(2)})`,
                     ].join("\n"),
                     inline: false,
                 },
                 {
                     name: "Goals Markets",
                     value: [
-                        `��� Both Teams to Score: ${stats.bttsProbability.toFixed(1)}% (${stats.bttsTrend > 0 ? "+" : ""}${stats.bttsTrend.toFixed(2)})`,
+                        ` Both Teams to Score: ${stats.bttsProbability.toFixed(1)}% (${stats.bttsTrend > 0 ? "+" : ""}${stats.bttsTrend.toFixed(2)})`,
                         `🎯 Over 2.5: ${stats.over25Probability.toFixed(1)}% (${stats.over25Trend > 0 ? "+" : ""}${stats.over25Trend.toFixed(2)})`,
                         `🎯 Under 2.5: ${(100 - stats.over25Probability).toFixed(1)}% (${-stats.over25Trend > 0 ? "+" : ""}${(-stats.over25Trend).toFixed(2)})`,
                         `🎯 Over 3.5: ${stats.over35Probability.toFixed(1)}% (${stats.over35Trend > 0 ? "+" : ""}${stats.over35Trend.toFixed(2)})`,
@@ -752,39 +825,46 @@ async function createDiscordEmbeds(
     return embeds;
 }
 
-async function sendToDiscord(preview: MatchPreview): Promise<void> {
-    try {
-        const structuredMessage = await createStructuredPreview(preview);
+// Helper function to split long messages
+function splitMessage(content: string, maxLength: number = 2000): string[] {
+    if (content.length <= maxLength) return [content];
 
-        // Create the webhook message
-        const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-        if (!webhookUrl) {
-            throw new Error(
-                "Discord webhook URL not found in environment variables"
-            );
+    const chunks: string[] = [];
+    let currentChunk = "";
+
+    const lines = content.split("\n");
+    for (const line of lines) {
+        if (currentChunk.length + line.length + 1 > maxLength) {
+            chunks.push(currentChunk);
+            currentChunk = line + "\n";
+        } else {
+            currentChunk += line + "\n";
         }
-
-        // Send the structured message
-        const response = await axios.post(webhookUrl, {
-            content: structuredMessage,
-            username: "Match Preview Bot",
-            avatar_url: "https://i.imgur.com/4M34hi2.png", // Add a relevant avatar URL
-            suppress_embeds: true, // Prevent Discord from generating link previews
-        });
-
-        log.success(
-            `Successfully sent preview for ${preview.homeTeam} vs ${preview.awayTeam}`
-        );
-    } catch (error) {
-        log.error(`Failed to send preview: ${(error as Error).message}`);
-        throw error;
     }
+
+    if (currentChunk) {
+        chunks.push(currentChunk);
+    }
+
+    return chunks;
 }
 
 async function summarizeWithOllama(text: string): Promise<string> {
     try {
-        // Implementation here - for now just return the text
-        return text;
+        const response = await fetch("http://localhost:11434/api/generate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                model: "mistral",
+                prompt: `Please summarize this sports match preview text in a concise way, focusing on key information about team news, injuries, and tactical changes. Keep the summary brief and informative:\n\n${text}`,
+                stream: false,
+            }),
+        });
+
+        const data = await response.json();
+        return data.response || text;
     } catch (error) {
         console.error("Error summarizing with Ollama:", error);
         return text;
@@ -830,48 +910,22 @@ export async function scrapeMatchPreview(
     try {
         console.log("Starting to scrape preview:", url);
 
-        const maxRetries = 3;
-        let retryCount = 0;
-        let success = false;
+        await navigateWithRetry(page, url);
 
-        while (retryCount < maxRetries && !success) {
-            try {
-                await page.goto(url, {
-                    waitUntil: "domcontentloaded",
-                    timeout: 60000,
-                });
-                success = true;
-            } catch (error) {
-                console.log(
-                    `Navigation attempt ${retryCount + 1} failed:`,
-                    error
-                );
-                retryCount++;
-                if (retryCount === maxRetries) {
-                    throw error;
-                }
-                await new Promise((resolve) => setTimeout(resolve, 5000));
-            }
-        }
-
-        try {
-            // Wait for content to load
-            await page.waitForSelector(".article_content", { timeout: 10000 });
-        } catch (error) {
-            console.error("Timeout waiting for article content:", error);
-            return null;
-        }
+        // Wait for content to load with increased timeout
+        await page.waitForSelector(".article_content", { timeout: 30000 });
 
         const extractedData = await page.evaluate(() => {
             const titleParts = document.title.split(" - ")[0].split(" vs. ");
             const content = document.querySelector(".article_content");
-
             if (!content) return null;
 
-            // Helper function to extract team news
+            // Extract team news sections
             const extractTeamNews = (teamSection: Element | null): string[] => {
                 if (!teamSection) return [];
-                const newsList = Array.from(teamSection.querySelectorAll("li"));
+                const newsList = Array.from(
+                    teamSection.querySelectorAll("li, p")
+                );
                 return newsList
                     .map((item) => item.textContent?.trim())
                     .filter(
@@ -885,47 +939,58 @@ export async function scrapeMatchPreview(
                 const paragraphs = Array.from(content.querySelectorAll("p"));
                 for (const p of paragraphs) {
                     const text = p.textContent || "";
-                    if (
-                        text
-                            .toLowerCase()
-                            .includes("sports mole's prediction:") ||
-                        text.toLowerCase().includes("we say:")
-                    ) {
+                    if (text.toLowerCase().includes("we say:")) {
                         return text.trim();
                     }
                 }
                 return "";
             };
 
-            // Extract team news sections
-            const homeTeamNews = document.querySelector(".home-team-news");
-            const awayTeamNews = document.querySelector(".away-team-news");
-
-            // Extract form guide
-            const extractFormGuide = (selector: string): string[] => {
-                const forms = Array.from(document.querySelectorAll(selector));
-                return forms
-                    .map((form) => form.textContent?.trim())
-                    .filter(
-                        (text): text is string =>
-                            text !== undefined && text !== ""
-                    );
+            // Extract match overview
+            const getOverview = (): string => {
+                const paragraphs = Array.from(content.querySelectorAll("p"));
+                // Usually the first few paragraphs contain the overview
+                const overviewText = paragraphs
+                    .slice(0, 3)
+                    .map((p) => p.textContent?.trim())
+                    .filter(Boolean)
+                    .join("\n");
+                return overviewText;
             };
 
-            // Extract statistics if available
-            const statsSection = document.querySelector(".match-stats");
-            const statistics = statsSection?.textContent?.trim() || "";
+            // Extract key absences and team news
+            const getTeamNews = (): { home: string[]; away: string[] } => {
+                const allParagraphs = Array.from(content.querySelectorAll("p"));
+                const teamNews = {
+                    home: [] as string[],
+                    away: [] as string[],
+                };
 
-            // Extract overview and key absences with error handling
-            const getTextContent = (selector: string): string => {
-                try {
-                    return (
-                        document.querySelector(selector)?.textContent?.trim() ||
-                        ""
-                    );
-                } catch {
-                    return "";
+                let isTeamNews = false;
+                for (const p of allParagraphs) {
+                    const text = p.textContent?.trim() || "";
+                    if (text.toLowerCase().includes("team news")) {
+                        isTeamNews = true;
+                        continue;
+                    }
+                    if (isTeamNews && text) {
+                        // Split between home and away team news based on team names
+                        if (
+                            text
+                                .toLowerCase()
+                                .includes(titleParts[0].toLowerCase())
+                        ) {
+                            teamNews.home.push(text);
+                        } else if (
+                            text
+                                .toLowerCase()
+                                .includes(titleParts[1].toLowerCase())
+                        ) {
+                            teamNews.away.push(text);
+                        }
+                    }
                 }
+                return teamNews;
             };
 
             return {
@@ -934,22 +999,26 @@ export async function scrapeMatchPreview(
                 awayTeam: (titleParts[1] || "").split(" - ")[0] || "",
                 content: content.textContent || "",
                 html: content.innerHTML || "",
-                competition: getTextContent(".competition"),
-                venue: getTextContent(".venue"),
-                kickoff: getTextContent(".kickoff"),
-                referee: getTextContent(".referee"),
+                competition:
+                    document
+                        .querySelector(".competition")
+                        ?.textContent?.trim() || "",
+                venue:
+                    document.querySelector(".venue")?.textContent?.trim() || "",
+                kickoff:
+                    document.querySelector(".kickoff")?.textContent?.trim() ||
+                    "",
+                referee:
+                    document.querySelector(".referee")?.textContent?.trim() ||
+                    "",
                 prediction: findPrediction(),
-                teamNews: {
-                    home: extractTeamNews(homeTeamNews),
-                    away: extractTeamNews(awayTeamNews),
-                },
-                formGuide: {
-                    home: extractFormGuide(".home-team-form .result"),
-                    away: extractFormGuide(".away-team-form .result"),
-                },
-                statistics,
-                overview: getTextContent(".match-overview"),
-                keyAbsences: getTextContent(".key-absences"),
+                teamNews: getTeamNews(),
+                overview: getOverview(),
+                keyAbsences: "", // Will be extracted from team news
+                dataAnalysisUrl:
+                    document
+                        .querySelector('a[href*="analysis"]')
+                        ?.getAttribute("href") || "",
             };
         });
 
@@ -958,27 +1027,38 @@ export async function scrapeMatchPreview(
             return null;
         }
 
+        // Use Ollama to summarize the overview
+        const summarizedOverview = await summarizeWithOllama(
+            extractedData.overview
+        );
+
         return {
             url,
             homeTeam: extractedData.homeTeam,
             awayTeam: extractedData.awayTeam,
-            matchSummary: extractedData.content,
+            matchSummary: summarizedOverview,
             fullArticle: extractedData.html,
             prediction: extractedData.prediction,
-            statistics: extractedData.statistics,
+            statistics: "",
             probabilities: "",
             competition: extractedData.competition,
             venue: extractedData.venue,
             kickoff: extractedData.kickoff,
             referee: extractedData.referee,
-            overview: extractedData.overview,
-            keyAbsences: extractedData.keyAbsences,
+            overview: summarizedOverview,
+            keyAbsences: "",
             teamNews: extractedData.teamNews,
             lineups: {
                 home: [],
                 away: [],
             },
-            formGuide: extractedData.formGuide,
+            formGuide: {
+                home: [],
+                away: [],
+            },
+            dataAnalysisUrl: extractedData.dataAnalysisUrl,
+            imageUrl: "",
+            tacticalInfo: "",
         };
     } catch (error) {
         console.error("Error scraping match preview:", error);
@@ -987,8 +1067,19 @@ export async function scrapeMatchPreview(
 }
 
 async function main() {
+    let browserService: BrowserService | undefined;
+    let page: Page | undefined;
+
     try {
         log.section("Starting main process...");
+
+        // Initialize Discord bot
+        if (!DISCORD_API_TOKEN) {
+            console.error(
+                "❌ DISCORD_API_TOKEN not set in environment variables"
+            );
+            process.exit(1);
+        }
 
         // Wait for bot to be ready
         await new Promise<void>((resolve) => {
@@ -1000,21 +1091,38 @@ async function main() {
         });
 
         log.info("Initializing browser...");
-        const page = await initBrowser();
+        browserService = await BrowserService.getInstance();
+        page = await browserService.newPage();
 
         // Navigate to the previews page
         log.info("Navigating to previews page...");
-        await page.goto("https://www.sportsmole.co.uk/football/preview/", {
-            waitUntil: "networkidle",
-            timeout: 60000,
-        });
-        log.success("Page loaded");
+        await navigateWithRetry(
+            page,
+            "https://www.sportsmole.co.uk/football/preview/"
+        );
+        log.success("Page loaded successfully");
 
         // Get preview links
+        log.info("Getting preview links...");
         const sections = await getPreviewLinks(page);
-        log.info(`Found ${sections.length} preview sections`);
+        log.success(`Found ${sections.length} preview sections`);
 
-        // Format the message
+        // Send initial overview message first
+        const channelId = process.env.DISCORD_CHANNEL_ID;
+        if (!channelId) {
+            console.error(
+                "❌ DISCORD_CHANNEL_ID not set in environment variables"
+            );
+            return;
+        }
+
+        const channel = await bot.getChannel(channelId);
+        if (!channel) {
+            console.error("Could not find Discord channel");
+            return;
+        }
+
+        // Create and send the overview message
         const dateString = new Date().toLocaleDateString("en-US", {
             weekday: "long",
             month: "long",
@@ -1022,48 +1130,148 @@ async function main() {
             year: "numeric",
         });
 
-        let message = `📅 **Today's Available Match Previews**\n\n${dateString}\n`;
+        // Send header first
+        await channel.send({
+            content: `📅 **Today's Available Match Previews**\n\n${dateString}\n`,
+            flags: ["SuppressEmbeds"],
+        });
 
-        // Process each section
+        // Send each section separately
         for (const section of sections) {
-            log.section(`Processing section: ${section.section}`);
-
-            // Extract competition name and ID
-            const [compName, compId] = section.section
-                .split(/(\d+)/)
-                .filter(Boolean);
-            message += `\n**${compName.trim()}**${compId ? compId : ""}\n`;
-
-            // Add each match with hyperlink and prevent preview
+            let sectionContent = `**${section.section}**\n`;
             for (const match of section.matches) {
-                // Use Discord's markdown link format with no-embed URL wrapper
-                message += `⚽ ${match.time} EST [${match.match}](<${match.url}>)\n`;
+                sectionContent += `⚽ ${match.time} EST [${match.match}](${match.url})\n`;
             }
+            sectionContent += "\n";
+
+            await channel.send({
+                content: sectionContent.trim(),
+                flags: ["SuppressEmbeds"],
+            });
         }
 
-        // Send the formatted message to Discord
-        if (sections.length > 0) {
-            const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-            if (!webhookUrl) {
-                throw new Error(
-                    "Discord webhook URL not found in environment variables"
-                );
-            }
-
-            await axios.post(webhookUrl, {
-                content: message,
-                username: "Match Preview Bot",
-                avatar_url: "https://i.imgur.com/4M34hi2.png",
-                flags: 4, // MessageFlags.SUPPRESS_EMBEDS
+        // Send competition headers and create threads
+        for (const section of sections) {
+            // Send competition header and create thread
+            const threadMessage = await channel.send({
+                content: `**${section.section}** Previews`,
+                flags: ["SuppressEmbeds"],
             });
 
-            log.success("Successfully sent match previews to Discord");
-        } else {
-            log.info("No match previews found to send");
+            const thread = await threadMessage.startThread({
+                name: `${section.section} Previews`,
+                autoArchiveDuration: 1440,
+            });
+
+            // Process matches for this competition
+            for (const match of section.matches) {
+                try {
+                    log.info(`Scraping preview for: ${match.match}`);
+                    const preview = await scrapeMatchPreview(page, match.url);
+                    if (preview) {
+                        // Format the preview content without images
+                        let matchContent = `${preview.homeTeam} vs ${preview.awayTeam}\n`;
+
+                        // Add match overview if available
+                        if (preview.overview) {
+                            matchContent += `${preview.overview}\n\n`;
+                        }
+
+                        // Add key information section
+                        if (
+                            preview.teamNews?.home?.length ||
+                            preview.teamNews?.away?.length
+                        ) {
+                            matchContent += "Key absentees: ";
+                            const absences = [];
+                            if (preview.teamNews?.home?.length) {
+                                absences.push(
+                                    `${preview.homeTeam} - ${preview.teamNews.home.join(", ")}`
+                                );
+                            }
+                            if (preview.teamNews?.away?.length) {
+                                absences.push(
+                                    `${preview.awayTeam} - ${preview.teamNews.away.join(", ")}`
+                                );
+                            }
+                            matchContent += absences.join("; ") + "\n\n";
+                        }
+
+                        // Add lineup changes if available
+                        matchContent += "Potential lineup changes: ";
+                        if (
+                            preview.lineups?.home?.length ||
+                            preview.lineups?.away?.length
+                        ) {
+                            const changes = [];
+                            if (preview.lineups?.home?.length) {
+                                changes.push(
+                                    `${preview.homeTeam} - ${preview.lineups.home.join(", ")}`
+                                );
+                            }
+                            if (preview.lineups?.away?.length) {
+                                changes.push(
+                                    `${preview.awayTeam} - ${preview.lineups.away.join(", ")}`
+                                );
+                            }
+                            matchContent += changes.join("; ") + "\n\n";
+                        } else {
+                            matchContent += "No major changes expected\n\n";
+                        }
+
+                        // Add team news section
+                        matchContent += "📋 Team News\n\n";
+
+                        // Home team news
+                        matchContent += `${preview.homeTeam}\n`;
+                        if (preview.teamNews?.home?.length) {
+                            matchContent +=
+                                preview.teamNews.home
+                                    .map((news) => `• ${news}`)
+                                    .join("\n") + "\n\n";
+                        } else {
+                            matchContent += "• No significant team news\n\n";
+                        }
+
+                        // Away team news
+                        matchContent += `${preview.awayTeam}\n`;
+                        if (preview.teamNews?.away?.length) {
+                            matchContent +=
+                                preview.teamNews.away
+                                    .map((news) => `• ${news}`)
+                                    .join("\n") + "\n\n";
+                        } else {
+                            matchContent += "• No significant team news\n\n";
+                        }
+
+                        // Add prediction if available
+                        if (preview.prediction) {
+                            matchContent += `🎯 Sports Mole Prediction\n${preview.prediction}\n\n`;
+                        }
+
+                        // Add data analysis link if available
+                        if (preview.dataAnalysisUrl) {
+                            matchContent += `Click here for detailed match analysis and statistics\n`;
+                        }
+
+                        // Split and send the match content with suppress embeds flag
+                        const chunks = splitMessage(matchContent);
+                        for (const chunk of chunks) {
+                            await thread.send({
+                                content: chunk,
+                                flags: ["SuppressEmbeds"],
+                            });
+                        }
+                    }
+                } catch (error) {
+                    log.error(
+                        `Error processing preview for ${match.url}:`,
+                        error
+                    );
+                }
+            }
         }
 
-        log.section("Cleanup");
-        await page.close();
         log.success("Process completed successfully");
     } catch (error) {
         log.error("Fatal error in main process:", error);
@@ -1071,6 +1279,12 @@ async function main() {
             log.error("Full error stack:", error.stack);
         }
     } finally {
+        if (page) {
+            await page.close();
+        }
+        if (browserService) {
+            await browserService.close();
+        }
         log.info("Script execution finished");
         process.exit(0);
     }
@@ -1312,20 +1526,22 @@ async function createStructuredPreview(preview: MatchPreview): Promise<string> {
 
     message += `⚽ ${preview.kickoff} EST ${preview.homeTeam} vs ${preview.awayTeam}\n`;
 
-    // Add team news if available
-    if (preview.teamNews?.home?.length || preview.teamNews?.away?.length) {
-        message += "\n**Team News:**\n";
-        if (preview.teamNews?.home?.length) {
-            message += `${preview.homeTeam}:\n${preview.teamNews.home.map((news) => `• ${news}`).join("\n")}\n\n`;
-        }
-        if (preview.teamNews?.away?.length) {
-            message += `${preview.awayTeam}:\n${preview.teamNews.away.map((news) => `• ${news}`).join("\n")}\n`;
-        }
+    // Add venue and referee if available
+    if (preview.venue) {
+        message += `🏟️ Venue: ${preview.venue}\n`;
+    }
+    if (preview.referee) {
+        message += `👨‍⚖️ Referee: ${preview.referee}\n`;
     }
 
-    // Add prediction if available
-    if (preview.prediction) {
-        message += `\n**Prediction:**\n${preview.prediction}\n`;
+    // Add key absences if available
+    if (preview.keyAbsences) {
+        message += `\n⚠️ **Key Absences:**\n${preview.keyAbsences}\n`;
+    }
+
+    // Add overview if available
+    if (preview.overview) {
+        message += `\n📝 **Match Overview:**\n${preview.overview}\n`;
     }
 
     return message;
